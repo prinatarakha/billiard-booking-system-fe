@@ -4,6 +4,7 @@ import TablesGrid from '@/components/TablesGrid';
 import Sidebar from '@/components/Sidebar';
 import CreateTableButton from '@/components/CreateTableButton';
 import { useState } from 'react';
+import CreateTableModal from '@/components/CreateTableModal';
 interface Table {
   id: number;
   number: number;
@@ -21,24 +22,33 @@ const sampleTables: Table[] = [
 
 export default function TablesPage() {
   const [tables, setTables] = useState<Table[]>(sampleTables);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCreateTable = (newTable: Omit<Table, 'id'>) => {
     setTables([...tables, { ...newTable, id: tables.length + 1 }]);
+    setIsModalOpen(false);
   };
-
   
-  return (
+  return (<>
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-800">Tables</h1>
-          <CreateTableButton onCreateTable={handleCreateTable} />
+          <CreateTableButton setIsModalOpen={setIsModalOpen} />
         </div>
         <div className="bg-white shadow-md rounded-lg p-4">
           <TablesGrid tables={tables} />
         </div>
       </div>
     </div>
+
+    {isModalOpen && (
+      <CreateTableModal
+        onClose={() => setIsModalOpen(false)}
+        onCreateTable={handleCreateTable}
+      />
+    )}
+    </>
   );
 }

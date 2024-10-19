@@ -9,17 +9,10 @@ interface Table {
 }
 
 interface CreateTableButtonProps {
-  onCreateTable: (newTable: Omit<Table, 'id'>) => void;
+  setIsModalOpen: (isOpen: boolean) => void;
 }
 
-const CreateTableButton: React.FC<CreateTableButtonProps> = ({ onCreateTable }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleCreateTable = (newTable: Omit<Table, 'id'>) => {
-    onCreateTable(newTable);
-    setIsModalOpen(false);
-  };
-
+const CreateTableButton: React.FC<CreateTableButtonProps> = ({ setIsModalOpen }) => {
   return (
     <>
       <button
@@ -28,13 +21,6 @@ const CreateTableButton: React.FC<CreateTableButtonProps> = ({ onCreateTable }) 
       >
         <FaPlus className="mr-2" /> Create New Table
       </button>
-
-      {isModalOpen && (
-        <CreateTableModal
-          onClose={() => setIsModalOpen(false)}
-          onCreateTable={handleCreateTable}
-        />
-      )}
     </>
   );
 };
