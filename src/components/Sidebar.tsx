@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
 const NavLink = ({ href, children, icon, isOpen }: { href: string; children: React.ReactNode; icon: string; isOpen: boolean }) => {
   const pathname = usePathname();
@@ -24,32 +23,32 @@ const NavLink = ({ href, children, icon, isOpen }: { href: string; children: Rea
 };
 
 export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="relative flex h-screen">
-      <nav className={`bg-zinc-800 h-full transition-all duration-300 ${isOpen ? 'w-64' : 'w-auto'}`}>
+    <div className="relative flex">
+      <nav 
+        className={`bg-zinc-800 h-full transition-all duration-300 ${
+          isHovered ? 'w-64' : 'w-20'
+        }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         <ul className="p-4 space-y-2">
           <li>
-            <NavLink href="/" icon="🏠" isOpen={isOpen}>Home</NavLink>
+            <NavLink href="/" icon="🏠" isOpen={isHovered}>Home</NavLink>
           </li>
           <li>
-            <NavLink href="/tables" icon="🎱" isOpen={isOpen}>Tables</NavLink>
+            <NavLink href="/tables" icon="🎱" isOpen={isHovered}>Tables</NavLink>
           </li>
           <li>
-            <NavLink href="/table-occupations" icon="👥" isOpen={isOpen}>Table Occupations</NavLink>
+            <NavLink href="/table-occupations" icon="👥" isOpen={isHovered}>Table Occupations</NavLink>
           </li>
           <li>
-            <NavLink href="/waiting-list" icon="⏳" isOpen={isOpen}>Waiting List</NavLink>
+            <NavLink href="/waiting-list" icon="⏳" isOpen={isHovered}>Waiting List</NavLink>
           </li>
         </ul>
       </nav>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="absolute top-1/2 -right-3 transform -translate-y-1/2 bg-zinc-800 text-white w-6 h-6 rounded-full flex items-center justify-center focus:outline-none"
-      >
-        {isOpen ? <FaChevronLeft size={12} /> : <FaChevronRight size={12} />}
-      </button>
     </div>
   );
 }
