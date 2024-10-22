@@ -3,29 +3,52 @@
 import TablesGrid from '@/components/TablesGrid';
 import Sidebar from '@/components/Sidebar';
 import CreateTableButton from '@/components/CreateTableButton';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import CreateTableModal from '@/components/CreateTableModal';
-interface Table {
-  id: number;
-  number: number;
-  brand: 'MRSUNG' | 'Xingjue' | 'Diamond';
-}
-
-// Sample data
-const sampleTables: Table[] = [
-  { id: 1, number: 1, brand: 'MRSUNG' },
-  { id: 2, number: 2, brand: 'Xingjue' },
-  { id: 3, number: 3, brand: 'Diamond' },
-  { id: 4, number: 4, brand: 'MRSUNG' },
-  { id: 5, number: 5, brand: 'Xingjue' },
-];
+import { getTables, createTable } from '@/api/tables';
+import { Table } from '@/types';
 
 export default function TablesPage() {
-  const [tables, setTables] = useState<Table[]>(sampleTables);
+  const [tables, setTables] = useState<Table[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const fetchedRef = useRef(false);
 
-  const handleCreateTable = (newTable: Omit<Table, 'id'>) => {
-    setTables([...tables, { ...newTable, id: tables.length + 1 }]);
+  useEffect(() => {
+    const fetchTables = async () => {
+      if (fetchedRef.current) return;
+      fetchedRef.current = true;
+
+      setIsLoading(true);
+      let page = 1;
+      const limit = 25; // fetch 25 tables at a time
+      let hasMorePages = true;
+      const updatedTables: Table[] = [];
+
+      while (hasMorePages) {
+        const data = await getTables({ pagination: { page, limit } });
+        if (!data) break;
+
+        updatedTables.push(...data.tables);
+        hasMorePages = page < data.totalPages;
+        page++;
+      }
+
+      setTables(updatedTables);
+      setIsLoading(false);
+    };
+
+    fetchTables();
+  }, []);
+
+  const handleCreateTable = async (newTable: Pick<Table, 'number' | 'brand'>) => {
+    const createdTable = await createTable(newTable);
+    if (!createdTable) {
+      alert('Failed to create table');
+      return;
+    }
+
+    setTables(prevTables => [...prevTables, createdTable]);
     setIsModalOpen(false);
   };
   
@@ -38,7 +61,13 @@ export default function TablesPage() {
           <CreateTableButton setIsModalOpen={setIsModalOpen} />
         </div>
         <div className="bg-white shadow-md rounded-lg p-4">
-          <TablesGrid tables={tables} />
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+            </div>
+          ) : (
+            <TablesGrid tables={tables} />
+          )}
         </div>
       </div>
     </div>

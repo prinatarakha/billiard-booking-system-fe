@@ -1,15 +1,17 @@
+import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
+import { Table, TableBrand } from '@/types';
 import React, { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import Select from 'react-select';
 
 interface CreateTableModalProps {
   onClose: () => void;
-  onCreateTable: (newTable: { number: number; brand: 'MRSUNG' | 'Xingjue' | 'Diamond' }) => void;
+  onCreateTable: (newTable: Pick<Table, 'number' | 'brand'>) => void;
 }
 
 const CreateTableModal: React.FC<CreateTableModalProps> = ({ onClose, onCreateTable }) => {
   const [number, setNumber] = useState<number>(1);
-  const [brand, setBrand] = useState<'MRSUNG' | 'Xingjue' | 'Diamond'>('MRSUNG');
+  const [brand, setBrand] = useState<TableBrand>('mrsung');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,13 +44,13 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({ onClose, onCreateTa
             <label htmlFor="brand" className="block mb-1 text-sm">Brand:</label>
             <Select
               id="brand"
-              value={{ value: brand, label: brand }}
-              onChange={(option) => setBrand(option?.value as 'MRSUNG' | 'Xingjue' | 'Diamond')}
+              value={{ value: brand, label: TABLE_BRANDS_TO_LABEL[brand] }}
+              onChange={(option) => setBrand(option?.value as TableBrand)}
               options={[
-                { value: 'MRSUNG', label: 'MRSUNG' },
-                { value: 'Xingjue', label: 'Xingjue' },
-                { value: 'Diamond', label: 'Diamond' }
-              ]}
+                { value: 'mrsung', label: 'MRSUNG' },
+                { value: 'xingjue', label: 'Xingjue' },
+                { value: 'diamond', label: 'Diamond' }
+              ] as { value: TableBrand; label: string }[]}
               className="react-select-container"
               classNamePrefix="react-select"
               styles={{
