@@ -8,6 +8,7 @@ import Sidebar from '@/components/Sidebar';
 import Link from 'next/link';
 import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
 import TableOccupationsTable from '@/components/TableOccupationsTable';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function TableDetailPage() {
   const { tableId } = useParams();
@@ -45,18 +46,18 @@ export default function TableDetailPage() {
     {
       id: "occ-001",
       tableId: table?.id.toString() || '',
-      startedAt: "2023-04-15T14:30:00Z",
-      finishedAt: "2023-04-15T15:45:00Z",
-      createdAt: "2023-04-15T14:29:50Z",
-      updatedAt: "2023-04-15T15:45:05Z"
+      startedAt: new Date("2023-04-15T14:30:00Z"),
+      finishedAt: new Date("2023-04-15T15:45:00Z"),
+      createdAt: new Date("2023-04-15T14:29:50Z"),
+      updatedAt: new Date("2023-04-15T15:45:05Z")
     },
     {
       id: "occ-002",
       tableId: table?.id.toString() || '',
-      startedAt: "2023-04-16T10:15:00Z",
-      finishedAt: "2023-04-16T11:45:00Z",
-      createdAt: "2023-04-16T10:14:30Z",
-      updatedAt: "2023-04-16T11:45:15Z"
+      startedAt: new Date("2023-04-16T10:15:00Z"),
+      finishedAt: new Date("2023-04-16T11:45:00Z"),
+      createdAt: new Date("2023-04-16T10:14:30Z"),
+      updatedAt: new Date("2023-04-16T11:45:15Z")
     },
     // Add more sample occupations as needed
   ];
@@ -74,13 +75,11 @@ export default function TableDetailPage() {
           <h1 className="text-3xl font-semibold text-gray-900">Table {table?.number}</h1>
         </div>
 
-        <div className="flex flex-col h-[calc(100vh-120px)]">
+        <div className="flex flex-col h-auto">
           <div className="bg-white shadow-md rounded-lg p-6 mb-6">
             <h2 className="text-2xl font-semibold mb-4 text-gray-700">Table Details</h2>
             {isLoadingTable ? (
-              <div className="flex justify-center items-center h-24">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
-              </div>
+              <LoadingSpinner />
             ) : table ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
@@ -108,9 +107,7 @@ export default function TableDetailPage() {
             <h2 className="text-2xl font-semibold mb-4 text-gray-700">Table Occupations</h2>
             <div className="overflow-x-auto flex-grow rounded-lg">
               {isLoadingOccupations ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
-                </div>
+                <LoadingSpinner />
               ) : (
                 <TableOccupationsTable
                   data={sampleOccupations}
