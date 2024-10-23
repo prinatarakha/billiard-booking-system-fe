@@ -49,3 +49,21 @@ export async function createTable(newTable: Pick<Table, 'number' | 'brand'>): Pr
     return null;
   }
 }
+
+export async function getTable(tableId: string): Promise<Table | null> {
+  try {
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/tables/${tableId}`);
+    const data: TableSnakeCase = response.data;
+    const result: Table = {
+      id: data.id,
+      number: data.number,
+      brand: data.brand,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
+    };
+    return result;
+  } catch (error) {
+    console.error('Error fetching table:', error);
+    return null;
+  }
+}

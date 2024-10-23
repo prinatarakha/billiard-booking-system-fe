@@ -16,3 +16,20 @@ export interface TableSnakeCase {
   updated_at: string;
 }
 
+export interface TableOccupation {
+  id: string;
+  tableId: string;
+  startedAt: Date;
+  finishedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface TableOccupationSnakeCase {
+  id: string;
+  table_id: string;
+  started_at: string;
+  finished_at: string;
+  created_at: string;
+  updated_at: string;
+}

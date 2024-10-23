@@ -1,73 +1,57 @@
 'use client'
 
 import React, { useState, useMemo } from 'react';
-import { FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
 import Select from 'react-select';
-import dayjs from 'dayjs';
 import Sidebar from '@/components/Sidebar';
-
-// Define the type for our table data
-type TableData = {
-  no: number;
-  id: string;
-  tableId: string;
-  startedAt: string;
-  finishedAt: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import TableOccupationsTable from '@/components/TableOccupationsTable';
+import { TableOccupation } from '@/types';
 
 // Sample data (replace this with your actual data fetching logic)
-const sampleData: TableData[] = [
+const sampleData: TableOccupation[] = [
   {
-    no: 1,
     id: "occ-001",
-    tableId: "table-01",
-    startedAt: "2023-04-15T14:30:00Z",
-    finishedAt: "2023-04-15T15:45:00Z",
-    createdAt: "2023-04-15T14:29:50Z",
-    updatedAt: "2023-04-15T15:45:05Z"
+    tableId: "table-01-table-01-table-01-table-01-table-01",
+    startedAt: new Date("2023-04-15T14:30:00Z"),
+    finishedAt: new Date("2023-04-15T15:45:00Z"),
+    createdAt: new Date("2023-04-15T14:29:50Z"),
+    updatedAt: new Date("2023-04-15T15:45:05Z")
   },
   {
-    no: 2,
     id: "occ-002",
-    tableId: "table-02",
-    startedAt: "2023-04-15T16:00:00Z",
-    finishedAt: "2023-04-15T17:30:00Z",
-    createdAt: "2023-04-15T15:59:45Z",
-    updatedAt: "2023-04-15T17:30:10Z"
+    tableId: "table-02-table-02-table-02-table-02-table-02",
+    startedAt: new Date("2023-04-15T16:00:00Z"),
+    finishedAt: new Date("2023-04-15T17:30:00Z"),
+    createdAt: new Date("2023-04-15T15:59:45Z"),
+    updatedAt: new Date("2023-04-15T17:30:10Z")
   },
   {
-    no: 3,
     id: "occ-003",
     tableId: "table-01",
-    startedAt: "2023-04-16T10:15:00Z",
-    finishedAt: "2023-04-16T11:45:00Z",
-    createdAt: "2023-04-16T10:14:30Z",
-    updatedAt: "2023-04-16T11:45:15Z"
+    startedAt: new Date("2023-04-16T10:15:00Z"),
+    finishedAt: new Date("2023-04-16T11:45:00Z"),
+    createdAt: new Date("2023-04-16T10:14:30Z"),
+    updatedAt: new Date("2023-04-16T11:45:15Z")
   },
   {
-    no: 4,
     id: "occ-004",
     tableId: "table-03",
-    startedAt: "2023-04-16T13:00:00Z",
-    finishedAt: "2023-04-16T14:30:00Z",
-    createdAt: "2023-04-16T12:59:40Z",
-    updatedAt: "2023-04-16T14:30:05Z"
+    startedAt: new Date("2023-04-16T13:00:00Z"),
+    finishedAt: new Date("2023-04-16T14:30:00Z"),
+    createdAt: new Date("2023-04-16T12:59:40Z"),
+    updatedAt: new Date("2023-04-16T14:30:05Z")
   },
   {
-    no: 5,
     id: "occ-005",
     tableId: "table-02",
-    startedAt: "2023-04-16T15:45:00Z",
-    finishedAt: "2023-04-16T17:15:00Z",
-    createdAt: "2023-04-16T15:44:50Z",
-    updatedAt: "2023-04-16T17:15:10Z"
+    startedAt: new Date("2023-04-16T15:45:00Z"),
+    finishedAt: new Date("2023-04-16T17:15:00Z"),
+    createdAt: new Date("2023-04-16T15:44:50Z"),
+    updatedAt: new Date("2023-04-16T17:15:10Z")
   }
 ];
 
 const TableOccupations: React.FC = () => {
-  const [sortColumn, setSortColumn] = useState<keyof TableData | null>(null);
+  const [sortColumn, setSortColumn] = useState<keyof TableOccupation | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,8 +79,25 @@ const TableOccupations: React.FC = () => {
 
     if (sortColumn) {
       filteredData.sort((a, b) => {
-        if (a[sortColumn] < b[sortColumn]) return sortDirection === 'asc' ? -1 : 1;
-        if (a[sortColumn] > b[sortColumn]) return sortDirection === 'asc' ? 1 : -1;
+        const aValue = a[sortColumn];
+        const bValue = b[sortColumn];
+
+        if (typeof aValue === 'object' && aValue instanceof Date && 
+            typeof bValue === 'object' && bValue instanceof Date) {
+          // For Date objects
+          return sortDirection === 'asc'
+            ? aValue.getTime() - bValue.getTime()
+            : bValue.getTime() - aValue.getTime();
+        } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+          // For strings
+          return sortDirection === 'asc'
+            ? aValue.localeCompare(bValue)
+            : bValue.localeCompare(aValue);
+        }
+
+        // For other types (shouldn't occur in this case, but added for completeness)
+        if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
         return 0;
       });
     }
@@ -112,18 +113,13 @@ const TableOccupations: React.FC = () => {
 
   const totalPages = Math.ceil(sortedAndFilteredData.length / itemsPerPage);
 
-  const handleSort = (column: keyof TableData) => {
-    if (sortColumn === column) {
+  const handleSort = (column: keyof TableOccupation) => {
+    if (sortColumn == column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortColumn(column);
       setSortDirection('asc');
     }
-  };
-
-  const renderSortIcon = (column: keyof TableData) => {
-    if (sortColumn !== column) return <FaSort />;
-    return sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />;
   };
 
   // Custom styles for react-select
@@ -147,100 +143,63 @@ const TableOccupations: React.FC = () => {
     }),
   };
 
-  // Function to format date strings
-  const formatDate = (dateString: string) => {
-    return dayjs(dateString).format('DD MMM YYYY HH:mm');
-  };
-
   return (
     <div className="flex">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-100 min-h-screen">
+      <div className="flex-1 p-6 bg-gray-100 min-h-screen overflow-hidden">
         <h1 className="text-3xl font-bold mb-6 text-gray-800">Table Occupations</h1>
-        
-        <div className="mb-6 flex justify-between items-center">
-          <Select
-            options={tableIdOptions}
-            onChange={(option) => setSelectedTableId(option ? option.value : null)}
-            isClearable
-            placeholder="Filter by Table ID"
-            className="w-64"
-            styles={customSelectStyles}
-          />
-        </div>
-
-        <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {['No', 'ID', 'Table ID', 'Started At', 'Finished At', 'Created At', 'Updated At'].map((header, index) => (
-                  <th
-                    key={index}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                    onClick={() => handleSort(header.toLowerCase().replace(' ', '') as keyof TableData)}
-                  >
-                    <div className="flex items-center">
-                      <span>{header}</span>
-                      <span className="ml-2">
-                        {renderSortIcon(header.toLowerCase().replace(' ', '') as keyof TableData)}
-                      </span>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {paginatedData.map((item, index) => (
-                <tr 
-                  key={item.id} 
-                  className={`
-                    ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}
-                    hover:bg-gray-100 transition-colors duration-150 ease-in-out
-                  `}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.no}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.tableId}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.startedAt)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.finishedAt)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.createdAt)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(item.updatedAt)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-6 flex justify-between items-center">
-          <div className="text-sm text-gray-700">
-            Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, sortedAndFilteredData.length)} of {sortedAndFilteredData.length} entries
-          </div>
-          <div className="flex items-center space-x-2">
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <div className="mb-6 flex justify-between items-center">
             <Select
-              options={itemsPerPageOptions}
-              onChange={(option) => {
-                setItemsPerPage(option ? option.value : 10);
-                setCurrentPage(1);
-              }}
-              defaultValue={itemsPerPageOptions[1]}
-              placeholder="Items per page"
-              className="w-32"
+              options={tableIdOptions}
+              onChange={(option) => setSelectedTableId(option ? option.value : null)}
+              isClearable
+              placeholder="Filter by Table ID"
+              className="w-64"
               styles={customSelectStyles}
             />
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-            >
-              Next
-            </button>
+          </div>
+
+          <div className="overflow-auto flex-grow">
+            <TableOccupationsTable
+              data={paginatedData}
+              sortColumn={sortColumn}
+              sortDirection={sortDirection}
+              handleSort={handleSort}
+            />
+          </div>
+
+          <div className="mt-6 flex justify-between items-center">
+            <div className="text-sm text-gray-700">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, sortedAndFilteredData.length)} of {sortedAndFilteredData.length} entries
+            </div>
+            <div className="flex items-center space-x-2">
+              <Select
+                options={itemsPerPageOptions}
+                onChange={(option) => {
+                  setItemsPerPage(option ? option.value : 10);
+                  setCurrentPage(1);
+                }}
+                defaultValue={itemsPerPageOptions[1]}
+                placeholder="Items per page"
+                className="w-32"
+                styles={customSelectStyles}
+              />
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>
