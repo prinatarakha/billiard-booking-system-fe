@@ -6,32 +6,55 @@ import { getTable } from '@/api/tables';
 import { Table, TableOccupation } from '@/types';
 import Sidebar from '@/components/Sidebar';
 import Link from 'next/link';
-import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
+import { DEFAULT_LIMIT_OPTIONS, TABLE_BRANDS_TO_LABEL } from '@/app/constants';
 import TableOccupationsTable from '@/components/TableOccupationsTable';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { getTableOccupations } from '@/api/tableOccupations';
+import TablePagination from '@/components/TablePagination';
 
 export default function TableDetailPage() {
   const { tableId } = useParams();
   const [table, setTable] = useState<Table | null>(null);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT_OPTIONS[1].value);
+  const [count, setCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [tableOccupations, setTableOccupations] = useState<TableOccupation[]>([]);
   const [isLoadingTable, setIsLoadingTable] = useState(true);
   const [isLoadingOccupations, setIsLoadingOccupations] = useState(true);
   const [sortColumn, setSortColumn] = useState<keyof TableOccupation | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  useEffect(() => {
-    const fetchTable = async () => {
-      setIsLoadingTable(true);
-      const fetchedTable = await getTable(tableId as string);
-      if (fetchedTable) {
-        setTable(fetchedTable);
-      }
-      setIsLoadingTable(false);
-    };
+  const fetchTable = async () => {
+    setIsLoadingTable(true);
+    const fetchedTable = await getTable(tableId as string);
+    if (fetchedTable) {
+      setTable(fetchedTable);
+    }
+    setIsLoadingTable(false);
+  };
 
+  const fetchTableOccupations = async () => {
+    setIsLoadingOccupations(true);
+    const fetchedTableOccupations = await getTableOccupations({
+      pagination: { page: page, limit: limit },
+      filter: { tableId: tableId as string },
+    });
+    if (fetchedTableOccupations) {
+      setTableOccupations(fetchedTableOccupations.tableOccupations);
+      setCount(fetchedTableOccupations.count);
+      setTotalPages(fetchedTableOccupations.totalPages);
+    }
+    setIsLoadingOccupations(false);
+  };
+
+  useEffect(() => {
     fetchTable();
-    // Simulate loading occupations
-    setTimeout(() => setIsLoadingOccupations(false), 200);
   }, [tableId]);
+
+  useEffect(() => {
+    if (tableId) fetchTableOccupations();
+  }, [page, limit, tableId]);
 
   const handleSort = (column: keyof TableOccupation) => {
     if (sortColumn === column) {
@@ -108,13 +131,25 @@ export default function TableDetailPage() {
             <div className="overflow-x-auto flex-grow rounded-lg">
               {isLoadingOccupations ? (
                 <LoadingSpinner />
+              ) : tableOccupations.length ? (
+                <>
+                  <TableOccupationsTable
+                    data={tableOccupations}
+                    sortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    handleSort={handleSort}
+                  />
+                  <TablePagination
+                    page={page}
+                    limit={limit}
+                    count={count}
+                    totalPages={totalPages}
+                    setPage={setPage}
+                    setLimit={setLimit}
+                  />
+                </>
               ) : (
-                <TableOccupationsTable
-                  data={sampleOccupations}
-                  sortColumn={sortColumn}
-                  sortDirection={sortDirection}
-                  handleSort={handleSort}
-                />
+                <p className="text-gray-700">No table occupations found</p>
               )}
             </div>
           </div>

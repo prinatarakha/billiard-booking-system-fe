@@ -7,58 +7,17 @@ import TableOccupationsTable from '@/components/TableOccupationsTable';
 import { TableOccupation } from '@/types';
 import { getTableOccupations } from '@/api/tableOccupations';
 import LoadingSpinner from '@/components/LoadingSpinner';
-
-// Sample data (replace this with your actual data fetching logic)
-// const tableOccupations: TableOccupation[] = [
-//   {
-//     id: "occ-001",
-//     tableId: "table-01-table-01-table-01-table-01-table-01",
-//     startedAt: new Date("2023-04-15T14:30:00Z"),
-//     finishedAt: new Date("2023-04-15T15:45:00Z"),
-//     createdAt: new Date("2023-04-15T14:29:50Z"),
-//     updatedAt: new Date("2023-04-15T15:45:05Z")
-//   },
-//   {
-//     id: "occ-002",
-//     tableId: "table-02-table-02-table-02-table-02-table-02",
-//     startedAt: new Date("2023-04-15T16:00:00Z"),
-//     finishedAt: new Date("2023-04-15T17:30:00Z"),
-//     createdAt: new Date("2023-04-15T15:59:45Z"),
-//     updatedAt: new Date("2023-04-15T17:30:10Z")
-//   },
-//   {
-//     id: "occ-003",
-//     tableId: "table-01",
-//     startedAt: new Date("2023-04-16T10:15:00Z"),
-//     finishedAt: new Date("2023-04-16T11:45:00Z"),
-//     createdAt: new Date("2023-04-16T10:14:30Z"),
-//     updatedAt: new Date("2023-04-16T11:45:15Z")
-//   },
-//   {
-//     id: "occ-004",
-//     tableId: "table-03",
-//     startedAt: new Date("2023-04-16T13:00:00Z"),
-//     finishedAt: new Date("2023-04-16T14:30:00Z"),
-//     createdAt: new Date("2023-04-16T12:59:40Z"),
-//     updatedAt: new Date("2023-04-16T14:30:05Z")
-//   },
-//   {
-//     id: "occ-005",
-//     tableId: "table-02",
-//     startedAt: new Date("2023-04-16T15:45:00Z"),
-//     finishedAt: new Date("2023-04-16T17:15:00Z"),
-//     createdAt: new Date("2023-04-16T15:44:50Z"),
-//     updatedAt: new Date("2023-04-16T17:15:10Z")
-//   }
-// ];
+import TablePagination from '@/components/TablePagination';
+import { DEFAULT_LIMIT_OPTIONS } from '../constants';
 
 const TableOccupations: React.FC = () => {
   const [tableOccupations, setTableOccupations] = useState<TableOccupation[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof TableOccupation | null>('createdAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(DEFAULT_LIMIT_OPTIONS[1].value);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -77,6 +36,7 @@ const TableOccupations: React.FC = () => {
       }
       setTableOccupations(fetchedTableOccupations.tableOccupations);
       setTotalPages(fetchedTableOccupations.totalPages);
+      setCount(fetchedTableOccupations.count);
       setIsLoading(false);
     };
     fetchTableOccupations();
@@ -88,14 +48,6 @@ const TableOccupations: React.FC = () => {
     const uniqueTableIds = Array.from(new Set(tableOccupations.map(item => item.tableId)));
     return uniqueTableIds.map(id => ({ value: id, label: id }));
   }, []);
-
-  // Items per page options
-  const limitOptions = [
-    { value: 5, label: '5' },
-    { value: 10, label: '10' },
-    { value: 20, label: '20' },
-    { value: 50, label: '50' },
-  ];
 
   const handleSort = (column: keyof TableOccupation) => {
     if (sortColumn == column) {
@@ -157,38 +109,15 @@ const TableOccupations: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-6 flex justify-between items-center">
-            <div className="text-sm text-gray-700">
-              Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, tableOccupations.length)} of {tableOccupations.length} entries
-            </div>
-            <div className="flex items-center space-x-2">
-              <Select
-                options={limitOptions}
-                onChange={(option) => {
-                  setLimit(option ? option.value : 10);
-                  setPage(1);
-                }}
-                defaultValue={limitOptions[1]}
-                placeholder="Items per page"
-                className="w-32"
-                styles={customSelectStyles}
-              />
-              <button
-                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
-                disabled={page === 1}
-                className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={page === totalPages}
-                className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+          <TablePagination
+            page={page}
+            limit={limit}
+            count={count}
+            totalPages={totalPages}
+            setPage={setPage}
+            setLimit={setLimit}
+            customSelectStyles={customSelectStyles}
+          />
         </div>
       </div>
     </div>
