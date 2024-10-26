@@ -1,15 +1,15 @@
 export type TableBrand = 'mrsung' | 'xingjue' | 'diamond';
 
 export interface Table {
-  id: number;
+  id: string;
   number: number;
   brand: TableBrand;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface TableSnakeCase {
-  id: number;
+  id: string;
   number: number;
   brand: TableBrand;
   created_at: string;

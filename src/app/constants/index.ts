@@ -1,4 +1,6 @@
-export const TABLE_BRANDS_TO_LABEL = {
+import { TableBrand } from "@/types";
+
+export const TABLE_BRANDS_TO_LABEL: Record<TableBrand, string> = {
   mrsung: 'MRSUNG',
   xingjue: 'Xingjue',
   diamond: 'Diamond'

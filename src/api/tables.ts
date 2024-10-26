@@ -1,4 +1,4 @@
-import { Table, TableSnakeCase } from '@/types';
+import { Table, TableBrand, TableSnakeCase } from '@/types';
 import { GetTablesResponse, GetTablesResponseSnakeCase, PaginationParams } from '@/types/dto';
 import axios from 'axios';
 
@@ -65,5 +65,23 @@ export async function getTable(tableId: string): Promise<Table | null> {
   } catch (error) {
     console.error('Error fetching table:', error);
     return null;
+  }
+}
+
+export async function updateTables(tables: { id: string, number?: number, brand?: TableBrand }[]): Promise<{tables?: Table[], error?: string}> {
+  try {
+    const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/tables`, {tables});
+    const data: TableSnakeCase[] = response.data.updated_tables;
+    const result: Table[] = data.map(table => ({
+      id: table.id,
+      number: table.number,
+      brand: table.brand,
+      createdAt: new Date(table.created_at),
+      updatedAt: new Date(table.updated_at),
+    }));
+    return { tables: result };
+  } catch (error: any) {
+    console.error('Error updating tables:', error);
+    return { error: error.response?.data.message || 'Failed to update tables' };
   }
 }
