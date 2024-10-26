@@ -22,8 +22,8 @@ export default function TableDetailPage() {
   const [tableOccupations, setTableOccupations] = useState<TableOccupation[]>([]);
   const [isLoadingTable, setIsLoadingTable] = useState(true);
   const [isLoadingOccupations, setIsLoadingOccupations] = useState(true);
-  const [sortColumn, setSortColumn] = useState<keyof TableOccupation | null>(null);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [sortColumn, setSortColumn] = useState<keyof TableOccupation>('startedAt');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const fetchTable = async () => {
     setIsLoadingTable(true);
@@ -39,6 +39,7 @@ export default function TableDetailPage() {
     const fetchedTableOccupations = await getTableOccupations({
       pagination: { page: page, limit: limit },
       filter: { tableId: tableId as string },
+      sort: { sortColumn: sortColumn, sortDirection: sortDirection },
     });
     if (fetchedTableOccupations) {
       setTableOccupations(fetchedTableOccupations.tableOccupations);
@@ -54,7 +55,7 @@ export default function TableDetailPage() {
 
   useEffect(() => {
     if (tableId) fetchTableOccupations();
-  }, [page, limit, tableId]);
+  }, [page, limit, tableId, sortColumn, sortDirection]);
 
   const handleSort = (column: keyof TableOccupation) => {
     if (sortColumn === column) {
@@ -64,26 +65,6 @@ export default function TableDetailPage() {
       setSortDirection('asc');
     }
   };
-
-  const sampleOccupations: TableOccupation[] = [
-    {
-      id: "occ-001",
-      tableId: table?.id.toString() || '',
-      startedAt: new Date("2023-04-15T14:30:00Z"),
-      finishedAt: new Date("2023-04-15T15:45:00Z"),
-      createdAt: new Date("2023-04-15T14:29:50Z"),
-      updatedAt: new Date("2023-04-15T15:45:05Z")
-    },
-    {
-      id: "occ-002",
-      tableId: table?.id.toString() || '',
-      startedAt: new Date("2023-04-16T10:15:00Z"),
-      finishedAt: new Date("2023-04-16T11:45:00Z"),
-      createdAt: new Date("2023-04-16T10:14:30Z"),
-      updatedAt: new Date("2023-04-16T11:45:15Z")
-    },
-    // Add more sample occupations as needed
-  ];
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
