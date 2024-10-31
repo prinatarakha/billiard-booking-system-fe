@@ -4,6 +4,7 @@ import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { FaEdit } from 'react-icons/fa';
 import Select from 'react-select';
+import Button from './Button';
 
 interface TableDetailsProps {
   table: Table | null;
@@ -22,12 +23,15 @@ const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdatin
     <div className="bg-white shadow-md rounded-lg p-6 mb-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-700">Table Details</h2>
-        {!isEditing && table && (
-          <FaEdit
+        <div className='flex space-x-2'>
+
+          {!isEditing && table && (
+            <FaEdit
             className="text-gray-500 cursor-pointer text-xl"
             onClick={() => setIsEditing(true)}
-          />
-        )}
+            />
+          )}
+        </div>
       </div>
       {isLoading ? (
         <LoadingSpinner />
@@ -74,22 +78,20 @@ const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdatin
           {isEditing && (
             <div className="col-span-2 flex justify-end mt-4">
               <div className="flex space-x-2">
-                <button
+                <Button
                   onClick={() => {
                     setIsEditing(false);
                     onCancelUpdate();
                   }}
-                  className="px-4 py-2 text-gray-400 hover:bg-gray-100 transition-colors rounded"
-                >
-                  Cancel
-                </button>
-                <button
+                  type='secondary'
+                  buttonTitle={"Cancel"}
+                />
+                <Button
                   disabled={isUpdating}
                   onClick={onUpdate}
-                  className="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-500 transition-colors"
-                >
-                  {isUpdating ? 'Saving...' : 'Save'}
-                </button>
+                  type='primary'
+                  buttonTitle={isUpdating ? 'Saving...' : 'Save'}
+                />
               </div>
             </div>
           )}

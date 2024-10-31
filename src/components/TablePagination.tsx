@@ -1,6 +1,7 @@
 import { DEFAULT_LIMIT_OPTIONS } from '@/app/constants';
 import React from 'react';
 import Select from 'react-select';
+import Button from './Button';
 
 interface TablePaginationProps {
   page: number;
@@ -62,20 +63,18 @@ const TablePagination: React.FC<TablePaginationProps> = ({
           className="w-32"
           styles={customSelectStyles || defaultSelectStyles}
         />
-        <button
+        <Button
           onClick={() => setPage(Math.max(page - 1, 1))}
           disabled={page === 1}
-          className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <button
+          type='secondary'
+          buttonTitle={"Previous"}
+        />
+        <Button
           onClick={() => setPage(Math.min(page + 1, totalPages))}
           disabled={page === totalPages}
-          className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-        >
-          Next
-        </button>
+          type='secondary'
+          buttonTitle={"Next"}
+        />
       </div>
     </div>
   );

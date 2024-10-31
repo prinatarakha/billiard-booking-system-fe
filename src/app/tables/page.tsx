@@ -2,12 +2,13 @@
 
 import TablesGrid from '@/components/TablesGrid';
 import Sidebar from '@/components/Sidebar';
-import CreateTableButton from '@/components/CreateTableButton';
 import { useState, useEffect, useRef } from 'react';
 import CreateTableModal from '@/components/CreateTableModal';
 import { getTables, createTable } from '@/api/tables';
 import { Table } from '@/types';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import Button from '@/components/Button';
+import { FaPlus } from 'react-icons/fa';
 
 export default function TablesPage() {
   const [tables, setTables] = useState<Table[]>([]);
@@ -59,7 +60,11 @@ export default function TablesPage() {
       <div className="flex-1 p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-semibold text-gray-800">Tables</h1>
-          <CreateTableButton setIsModalOpen={setIsModalOpen} />
+          <Button  
+            onClick={() => setIsModalOpen(true)}
+            type='primary'
+            buttonTitle={<><FaPlus className="mr-2" /> Create New Table</>}
+          />
         </div>
         <div className="bg-white shadow-md rounded-lg p-4">
           {isLoading ? (
