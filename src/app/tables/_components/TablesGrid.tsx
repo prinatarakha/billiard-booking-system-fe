@@ -1,8 +1,8 @@
 import React from 'react';
 import { Table } from '@/types';
 import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
-import NumberInput from './NumberInput';
 import { useRouter } from 'next/navigation';
+import NumberInput from '@/components/NumberInput';
 
 interface TablesGridComponents {
   isEditing?: boolean;
@@ -26,7 +26,7 @@ const TablesGrid: React.FC<TablesGridComponents> = ({ isEditing = false, tables,
               {isEditing ? (
                 <div className='flex items-center px-2 rounded-md bg-green-700'>
                   <span className="text-4xl text-white">#</span>
-                  <NumberInput 
+                  <NumberInput
                   className='text-4xl text-white bg-green-700 py-2 w-16 focus:outline-none'
                   value={table.number} 
                   onChange={(number: number) => onTableChanges({...table, number}, index)}

@@ -1,9 +1,9 @@
 'use client';
 
-import TablesGrid from '@/components/TablesGrid';
+import TablesGrid from './_components/TablesGrid';
 import Sidebar from '@/components/Sidebar';
 import { useState, useEffect, useRef } from 'react';
-import CreateTableModal from '@/components/CreateTableModal';
+import CreateTableModal from './_components/CreateTableModal';
 import { getTables, createTable, updateTables } from '@/api/tables';
 import { Table } from '@/types';
 import LoadingSpinner from '@/components/LoadingSpinner';

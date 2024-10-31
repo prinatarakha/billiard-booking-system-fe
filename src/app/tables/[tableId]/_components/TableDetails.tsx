@@ -3,12 +3,12 @@ import { Table, TableBrand } from '@/types';
 import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Select from 'react-select';
-import Button from './Button';
-import DeleteIcon from './DeleteIcon';
-import EditIcon from './EditIcon';
+import Button from '../../../../components/Button';
+import DeleteIcon from '../../../../components/DeleteIcon';
+import EditIcon from '../../../../components/EditIcon';
 import { deleteTable } from '@/api/tables';
 import { useRouter } from 'next/navigation';
-import NumberInput from './NumberInput';
+import NumberInput from '../../../../components/NumberInput';
 
 interface TableDetailsProps {
   table: Table | null;
@@ -41,10 +41,10 @@ const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdatin
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-700">Table Details</h2>
         <div className='flex space-x-4 items-center'>
-          <DeleteIcon onClick={handleDelete} />
           {!isEditing && table && (
             <EditIcon onClick={() => setIsEditing(true)}/>
           )}
+          <DeleteIcon onClick={handleDelete} />
         </div>
       </div>
       {isLoading ? (

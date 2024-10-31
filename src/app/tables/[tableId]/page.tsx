@@ -11,14 +11,15 @@ import TableOccupationsTable from '@/components/TableOccupationsTable';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { getTableOccupations } from '@/api/tableOccupations';
 import TablePagination from '@/components/TablePagination';
-import TableDetails from '@/components/TableDetails';
+import TableDetails from './_components/TableDetails';
+import Button from '@/components/Button';
+import { FaPlus } from 'react-icons/fa';
 
 export default function TableDetailPage() {
   const { tableId } = useParams();
   const [table, setTable] = useState<Table | null>(null);
   const [updateTableInput, setUpdateTableInput] = useState<{ number: number, brand: TableBrand } | null>(null);
   const [isUpdatingTable, setIsUpdatingTable] = useState(false);
-
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT_OPTIONS[1].value);
@@ -29,6 +30,8 @@ export default function TableDetailPage() {
   const [isLoadingOccupations, setIsLoadingOccupations] = useState(true);
   const [sortColumn, setSortColumn] = useState<keyof TableOccupation>('startedAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchTable = async () => {
     setIsLoadingTable(true);
@@ -129,7 +132,14 @@ export default function TableDetailPage() {
             onCancelUpdate={handleCancelUpdate}
           />
           <div className="bg-white shadow-md rounded-lg p-6 flex flex-col flex-grow overflow-hidden">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-700">Table Occupations</h2>
+            <div className='flex justify-between items-center mb-4'>
+              <h2 className="text-2xl font-semibold text-gray-700">Table Occupations</h2>
+              <Button  
+              onClick={() => {}}
+              type='primary'
+              buttonTitle={<FaPlus/>}
+              />
+            </div>
             <div className="overflow-x-auto flex-grow rounded-lg">
               {isLoadingOccupations ? (
                 <LoadingSpinner />
