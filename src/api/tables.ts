@@ -85,3 +85,21 @@ export async function updateTables(tables: { id: string, number?: number, brand?
     return { error: error.response?.data.message || 'Failed to update tables' };
   }
 }
+
+export async function deleteTable(tableId: string): Promise<Table | null> {
+  try {
+    const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/tables/${tableId}`);
+    const data: TableSnakeCase = response.data;
+    const result: Table = {
+      id: data.id,
+      number: data.number,
+      brand: data.brand,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
+    };
+    return result;
+  } catch (error) {
+    console.error('Error deleting table:', error);
+    return null;
+  }
+}

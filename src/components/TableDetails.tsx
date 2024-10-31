@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Table, TableBrand } from '@/types';
 import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { FaEdit } from 'react-icons/fa';
 import Select from 'react-select';
 import Button from './Button';
+import DeleteIcon from './DeleteIcon';
+import EditIcon from './EditIcon';
+import { deleteTable } from '@/api/tables';
+import { useRouter } from 'next/navigation';
 
 interface TableDetailsProps {
   table: Table | null;
@@ -18,18 +21,28 @@ interface TableDetailsProps {
 
 const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdating, onUpdate, updateTableInput, onTableInputChange, onCancelUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    if (!table || !table.id) return;
+    if (!window.confirm(`Are you sure you want to delete table with number ${table.number}?`)) return;
+
+    const result = await deleteTable(table.id);
+    if (!result) {
+      alert("Failed to delete table");
+    } else {
+      router.push('/tables');
+    }
+  }
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6 mb-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold text-gray-700">Table Details</h2>
-        <div className='flex space-x-2'>
-
+        <div className='flex space-x-4 items-center'>
+          <DeleteIcon onClick={handleDelete} />
           {!isEditing && table && (
-            <FaEdit
-            className="text-gray-500 cursor-pointer text-xl"
-            onClick={() => setIsEditing(true)}
-            />
+            <EditIcon onClick={() => setIsEditing(true)}/>
           )}
         </div>
       </div>
