@@ -8,6 +8,7 @@ import DeleteIcon from './DeleteIcon';
 import EditIcon from './EditIcon';
 import { deleteTable } from '@/api/tables';
 import { useRouter } from 'next/navigation';
+import NumberInput from './NumberInput';
 
 interface TableDetailsProps {
   table: Table | null;
@@ -58,12 +59,10 @@ const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdatin
             <p className="text-sm font-medium text-gray-500 mb-1">Number</p>
             {isEditing ? (
               <div className="flex-col space-y-1">
-                <input
-                  type="number"
+                <NumberInput 
                   value={updateTableInput?.number || table.number}
-                  onChange={(e) => onTableInputChange({ number: Number(e.target.value) })}
-                  className="text-lg font-semibold text-gray-700 w-full border-gray-300 px-3 py-2 border rounded focus:outline-none focus:border-gray-500"
-                  min="1"
+                  onChange={(number: number) => onTableInputChange({ number })}
+                  min={1}
                 />
                 <p className="text-xs text-gray-400">Table number must be unique.</p>
               </div>

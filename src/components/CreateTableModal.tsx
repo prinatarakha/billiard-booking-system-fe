@@ -1,17 +1,22 @@
 import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
 import { Table, TableBrand } from '@/types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import Select from 'react-select';
 
 interface CreateTableModalProps {
   onClose: () => void;
+  defaultNumber?: number;
   onCreateTable: (newTable: Pick<Table, 'number' | 'brand'>) => void;
 }
 
-const CreateTableModal: React.FC<CreateTableModalProps> = ({ onClose, onCreateTable }) => {
-  const [number, setNumber] = useState<number>(1);
+const CreateTableModal: React.FC<CreateTableModalProps> = ({ defaultNumber = 1, onClose, onCreateTable }) => {
+  const [number, setNumber] = useState<number>(0);
   const [brand, setBrand] = useState<TableBrand>('mrsung');
+
+  useEffect(() => {
+    setNumber(defaultNumber);
+  }, [defaultNumber])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
