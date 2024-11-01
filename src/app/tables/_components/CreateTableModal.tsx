@@ -23,8 +23,14 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({ defaultNumber = 1, 
     onCreateTable({ number, brand });
   };
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.currentTarget === e.target) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center" onClick={handleOverlayClick}>
       <div className="bg-gray-800 p-6 rounded-lg w-96 text-gray-200">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-100">Create New Table</h2>
@@ -34,7 +40,7 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({ defaultNumber = 1, 
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="number" className="block mb-1 text-sm">Table Number:</label>
+            <label htmlFor="number" className="block mb-1 text-sm">Table Number<span className="text-red-500 ml-1 text-sm">*</span></label>
             <input
               type="number"
               id="number"
@@ -46,7 +52,7 @@ const CreateTableModal: React.FC<CreateTableModalProps> = ({ defaultNumber = 1, 
             />
           </div>
           <div>
-            <label htmlFor="brand" className="block mb-1 text-sm">Brand:</label>
+            <label htmlFor="brand" className="block mb-1 text-sm">Brand<span className="text-red-500 ml-1 text-sm">*</span></label>
             <Select
               id="brand"
               value={{ value: brand, label: TABLE_BRANDS_TO_LABEL[brand] }}

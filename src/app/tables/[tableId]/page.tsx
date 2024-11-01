@@ -14,6 +14,7 @@ import TablePagination from '@/components/TablePagination';
 import TableDetails from './_components/TableDetails';
 import Button from '@/components/Button';
 import { FaPlus } from 'react-icons/fa';
+import CreateTableOccupationModal from './_components/CreateTableOccupationModal';
 
 export default function TableDetailPage() {
   const { tableId } = useParams();
@@ -32,6 +33,12 @@ export default function TableDetailPage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newTableOccupation, setNewTableOccupation] = useState<Pick<TableOccupation, 'tableId' | 'startedAt' | 'finishedAt'>>({
+    tableId: tableId as string,
+    startedAt: new Date(),
+    finishedAt: null,
+  });
+  const [isLoadingCreateTableOccupation, setIsLoadingCreateTableOccupation] = useState<boolean>(false);
 
   const fetchTable = async () => {
     setIsLoadingTable(true);
@@ -108,6 +115,27 @@ export default function TableDetailPage() {
     if (table) setUpdateTableInput(table);
   };
 
+  const handleTableOccupationChanges = (data: { startedAt?: Date, finishedAt?: Date|null }) => {
+    setNewTableOccupation({
+      ...newTableOccupation,
+      ...data,
+    });
+  }
+
+  const handleCloseTableOccupationModal = () => {
+    setIsModalOpen(false);
+  }
+
+  const handleCreateTableOccupation = async () => {
+    setIsLoadingCreateTableOccupation(true);
+    setIsLoadingCreateTableOccupation(false);
+    handleCloseTableOccupationModal();
+    handleTableOccupationChanges({
+      startedAt: new Date(),
+      finishedAt: null,
+    })
+  }
+
   return (
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
@@ -135,7 +163,7 @@ export default function TableDetailPage() {
             <div className='flex justify-between items-center mb-4'>
               <h2 className="text-2xl font-semibold text-gray-700">Table Occupations</h2>
               <Button  
-              onClick={() => {}}
+              onClick={() => setIsModalOpen(true)}
               type='primary'
               buttonTitle={<FaPlus/>}
               />
@@ -165,6 +193,15 @@ export default function TableDetailPage() {
               )}
             </div>
           </div>
+          {isModalOpen && (
+            <CreateTableOccupationModal
+            onClose={handleCloseTableOccupationModal}
+            tableOccupation={newTableOccupation}
+            onChanges={handleTableOccupationChanges}
+            isLoadingCreate={isLoadingCreateTableOccupation}
+            onSubmit={handleCreateTableOccupation}
+            />
+          )}
         </div>
       </div>
     </div>
