@@ -8,8 +8,9 @@ import { FaTimes } from 'react-icons/fa';
 
 interface UpdateTableOccupationModalProps {
   onClose: () => void;
-  tableOccupation?: TableOccupation;
-  onSubmit: () => void;
+  tableOccupation: TableOccupation | null;
+  isLoadingUpdate: boolean;
+  onSubmit: (data: {startedAt?: Date, finishedAt?: Date | null}) => Promise<void>;
 }
 
 const UpdateTableOccupationModal: React.FC<UpdateTableOccupationModalProps> = ({ onClose, tableOccupation, onSubmit }) => {
@@ -34,7 +35,10 @@ const UpdateTableOccupationModal: React.FC<UpdateTableOccupationModalProps> = ({
   }, [tableOccupation]);
   
   const handleSubmit = (e: React.FormEvent) => {
-    onSubmit();
+    onSubmit({
+      startedAt: startedAt ? new Date(startedAt) : new Date(),
+      finishedAt: finishedAt ? new Date(finishedAt) : null,
+    });
     e.preventDefault();
   };
 
@@ -108,7 +112,7 @@ const UpdateTableOccupationModal: React.FC<UpdateTableOccupationModalProps> = ({
               type="submit"
               className="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-500 transition-colors"
             >
-              Create
+              Update
             </button>
           </div>
         </form>

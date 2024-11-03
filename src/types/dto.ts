@@ -59,3 +59,15 @@ export interface CreateTableOccupationPayloadSnakeCase {
   started_at?: string; // datetime in isostring
   finished_at?: string; // datetime in isostring
 }
+
+export interface UpdateTableOccupationPayload {
+  tableId?: string;
+  startedAt?: Date;
+  finishedAt?: Date | null;
+}
+
+export interface UpdateTableOccupationPayloadSnakeCase {
+  table_id?: string;
+  started_at?: string; // datetime in isostring
+  finished_at?: string | null; // datetime in isostring
+}

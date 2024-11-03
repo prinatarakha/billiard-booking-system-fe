@@ -1,5 +1,5 @@
 import { TableOccupation, TableOccupationSnakeCase } from "@/types";
-import { CreateTableOccupationPayload, CreateTableOccupationPayloadSnakeCase, GetTableOccupationsResponse, GetTableOccupationsResponseSnakeCase, PaginationParams, SortParams, TableOccupationFilterParams } from "@/types/dto";
+import { CreateTableOccupationPayload, CreateTableOccupationPayloadSnakeCase, GetTableOccupationsResponse, GetTableOccupationsResponseSnakeCase, PaginationParams, SortParams, TableOccupationFilterParams, UpdateTableOccupationPayload, UpdateTableOccupationPayloadSnakeCase } from "@/types/dto";
 import axios from "axios";
 import { snakeCase } from "change-case";
 import dayjs from "dayjs";
@@ -84,5 +84,32 @@ export async function deleteTableOccupation(tableOccupationId: string): Promise<
   } catch (error: any) {
     console.error('Error deleting table occupation:', error);
     return { error: error.response?.data?.message || "Failed to delete table occupation" };
+  }
+}
+
+export async function updateTableOccupation(tableOccupationId: string, params: UpdateTableOccupationPayload): Promise<{tableOccupation?: TableOccupation, error?: string}> {
+  try {
+    const payload: UpdateTableOccupationPayloadSnakeCase = {
+      table_id: params.tableId,
+      started_at: params.startedAt ? params.startedAt.toISOString() : undefined,
+    }
+    if (params.finishedAt !== undefined) {
+      payload.finished_at = params.finishedAt ? params.finishedAt.toISOString() : null;
+    }
+    
+    const response = await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/table-occupations/${tableOccupationId}`, payload);
+    const data: TableOccupationSnakeCase = response.data;
+    const tableOccupation: TableOccupation = {
+      id: data.id,
+      tableId: data.table_id,
+      startedAt: new Date(data.started_at),
+      finishedAt: data.finished_at ? new Date(data.finished_at) : null,
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at),
+    };
+    return { tableOccupation };
+  } catch (error: any) {
+    console.error('Error updating table occupation:', error);
+    return { error: error.response?.data?.message || "Failed to update table occupation" };
   }
 }

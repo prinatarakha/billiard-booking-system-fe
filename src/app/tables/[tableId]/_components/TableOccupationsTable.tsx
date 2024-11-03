@@ -6,6 +6,7 @@ import EditIcon from '@/components/EditIcon';
 import DeleteIcon from '@/components/DeleteIcon';
 
 type Props = {
+  onEdit: (tableOccupation: TableOccupation) => void;
   onDelete: (tableOccupationId: string) => void;
   data: TableOccupation[];
   sortColumn: keyof TableOccupation | null;
@@ -16,6 +17,7 @@ type Props = {
 };
 
 const TableOccupationsTable: React.FC<Props> = ({
+  onEdit,
   onDelete,
   data,
   sortColumn,
@@ -36,19 +38,13 @@ const TableOccupationsTable: React.FC<Props> = ({
     { key: 'updatedAt' as keyof TableOccupation, header: 'Updated At', render: (value: Date) => formatDate(value) },
     { key: 'actions' as keyof TableOccupation, header: 'Actions', 
       render: (value: {occupation: TableOccupation, rowNumber: number}) => <div className="flex items-center justify-center space-x-4">
-        <EditIcon onClick={() => handleEdit(value.occupation)} />
+        <EditIcon onClick={() => onEdit(value.occupation)} />
         <DeleteIcon onClick={() => handleDelete(value)} />
       </div>,
       className: 'justify-center w-12'
     },
   ];
 
-  // TODO: Need to move to parent component
-  const handleEdit = (occupation: TableOccupation) => {
-    // Implement the edit functionality here
-  };
-
-  // TODO: Need to move to parent component
   const handleDelete = (value: {occupation: TableOccupation, rowNumber: number}) => {
     // Implement the delete functionality here
     if (window.confirm(`Are you sure you want to delete this table occupation #${value.rowNumber}?`)) {

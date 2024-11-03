@@ -9,8 +9,9 @@ import TablePagination from "@/components/TablePagination";
 import CreateTableOccupationModal from "./CreateTableOccupationModal";
 import { useState } from "react";
 import dayjs from "dayjs";
-import { createTableOccupation, deleteTableOccupation } from "@/api/tableOccupations";
+import { createTableOccupation, deleteTableOccupation, updateTableOccupation } from "@/api/tableOccupations";
 import { CreateTableOccupationPayload } from "@/types/dto";
+import UpdateTableOccupationModal from "./UpdateTableOccupationModal";
 
 interface TableOccupationsDetailsProps {
   tableId: string;
@@ -44,12 +45,15 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
   setLimit,
 }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [newTableOccupation, setNewTableOccupation] = useState<CreateTableOccupationPayload>({
     tableId: tableId as string,
     startedAt: null,
     finishedAt: null,
   });
   const [isLoadingCreateTableOccupation, setIsLoadingCreateTableOccupation] = useState<boolean>(false);
+  const [isLoadingUpdateTableOccupation, setIsLoadingUpdateTableOccupation] = useState<boolean>(false);
+  const [selectedTableOccupationToUpdate, setSelectedTableOccupationToUpdate] = useState<TableOccupation | null>(null);
 
   const handleTableOccupationChanges = (data: { startedAt?: Date | null, finishedAt?: Date | null }) => {
     setNewTableOccupation({
@@ -102,6 +106,45 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
     }
   }
 
+  const handleEditIconClick = (tableOccupation: TableOccupation) => {
+    setSelectedTableOccupationToUpdate(tableOccupation);
+    setIsUpdateModalOpen(true);
+  }
+
+  const handleUpdateTableOccupation = async ({startedAt, finishedAt}: {startedAt?: Date, finishedAt?: Date | null}) => {
+    if (!selectedTableOccupationToUpdate ||
+      (startedAt === undefined && finishedAt === undefined)
+    ) return;
+
+    if ((
+        !startedAt || dayjs(startedAt).isSame(dayjs(selectedTableOccupationToUpdate.startedAt))
+      ) && (
+        finishedAt === undefined || 
+        (finishedAt === null && selectedTableOccupationToUpdate.finishedAt === null) ||
+        dayjs(finishedAt).isSame(dayjs(selectedTableOccupationToUpdate.finishedAt))
+      )
+    ) {
+      alert("No changes made!");
+      return;
+    }
+
+    setIsLoadingUpdateTableOccupation(true);
+    const result = await updateTableOccupation(selectedTableOccupationToUpdate.id, {startedAt, finishedAt});
+    if (!result.tableOccupation || result.error) {
+      alert(result.error || "Failed to update table occupation");
+      setIsLoadingUpdateTableOccupation(false);
+      return;
+    }
+    setIsLoadingUpdateTableOccupation(false);
+    setIsUpdateModalOpen(false);
+    await fetchTableOccupations();
+  }
+  
+  const handleCloseUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setSelectedTableOccupationToUpdate(null);
+  }
+
   return (<>
     <div className="bg-white shadow-md rounded-lg p-6 flex flex-col flex-grow overflow-hidden">
       <div className='flex justify-between items-center mb-4'>
@@ -118,6 +161,7 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
         ) : tableOccupations.length ? (
           <>
             <TableOccupationsTable
+              onEdit={handleEditIconClick}
               onDelete={handleDeleteTableOccupation}
               data={tableOccupations}
               sortColumn={sortColumn}
@@ -148,6 +192,14 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
         onChanges={handleTableOccupationChanges}
         isLoadingCreate={isLoadingCreateTableOccupation}
         onSubmit={handleCreateTableOccupation}
+      />
+    )}
+    {isUpdateModalOpen && (
+      <UpdateTableOccupationModal
+        onClose={handleCloseUpdateModal}
+        tableOccupation={selectedTableOccupationToUpdate}
+        isLoadingUpdate={isLoadingUpdateTableOccupation}
+        onSubmit={handleUpdateTableOccupation}
       />
     )}
   </>)
