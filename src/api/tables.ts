@@ -32,7 +32,7 @@ export async function getTables(params: { pagination: PaginationParams }): Promi
   }
 }
 
-export async function createTable(newTable: Pick<Table, 'number' | 'brand'>): Promise<Table|null> {
+export async function createTable(newTable: Pick<TableSnakeCase, 'number' | 'brand'>): Promise<Table|null> {
   try {
     const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/tables`, newTable);
     const data: TableSnakeCase = response.data;

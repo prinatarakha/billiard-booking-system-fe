@@ -58,7 +58,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
             setLimit(option ? option.value : 10);
             setPage(1);
           }}
-          defaultValue={selectedLimitOptions[1]}
+          defaultValue={selectedLimitOptions.find(option => option.value === limit) || selectedLimitOptions[1]}
           placeholder="Items per page"
           className="w-32"
           styles={customSelectStyles || defaultSelectStyles}
@@ -71,7 +71,7 @@ const TablePagination: React.FC<TablePaginationProps> = ({
         />
         <Button
           onClick={() => setPage(Math.min(page + 1, totalPages))}
-          disabled={page === totalPages}
+          disabled={page === totalPages || !totalPages}
           type='secondary'
           buttonTitle={"Next"}
         />

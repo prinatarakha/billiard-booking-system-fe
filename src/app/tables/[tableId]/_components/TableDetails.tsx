@@ -26,7 +26,7 @@ const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdatin
 
   const handleDelete = async () => {
     if (!table || !table.id) return;
-    if (!window.confirm(`Are you sure you want to delete table with number ${table.number}?`)) return;
+    if (!window.confirm(`Are you sure you want to delete Table ${table.number}?`)) return;
 
     const result = await deleteTable(table.id);
     if (!result) {

@@ -12,3 +12,5 @@ export const DEFAULT_LIMIT_OPTIONS = [
   { value: 20, label: '20' },
   { value: 50, label: '50' },
 ];
+
+export const TIMESTAMP_INPUT_FORMAT = "YYYY-MM-DDTHH:mm";

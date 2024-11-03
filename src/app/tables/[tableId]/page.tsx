@@ -9,12 +9,14 @@ import Link from 'next/link';
 import { DEFAULT_LIMIT_OPTIONS } from '@/app/constants';
 import TableOccupationsTable from '@/components/TableOccupationsTable';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { getTableOccupations } from '@/api/tableOccupations';
+import { createTableOccupation, getTableOccupations } from '@/api/tableOccupations';
 import TablePagination from '@/components/TablePagination';
 import TableDetails from './_components/TableDetails';
 import Button from '@/components/Button';
 import { FaPlus } from 'react-icons/fa';
 import CreateTableOccupationModal from './_components/CreateTableOccupationModal';
+import dayjs from 'dayjs';
+import TableOccupationsDetails from './_components/TableOccupationsDetails';
 
 export default function TableDetailPage() {
   const { tableId } = useParams();
@@ -31,14 +33,6 @@ export default function TableDetailPage() {
   const [isLoadingOccupations, setIsLoadingOccupations] = useState(true);
   const [sortColumn, setSortColumn] = useState<keyof TableOccupation>('startedAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTableOccupation, setNewTableOccupation] = useState<Pick<TableOccupation, 'tableId' | 'startedAt' | 'finishedAt'>>({
-    tableId: tableId as string,
-    startedAt: new Date(),
-    finishedAt: null,
-  });
-  const [isLoadingCreateTableOccupation, setIsLoadingCreateTableOccupation] = useState<boolean>(false);
 
   const fetchTable = async () => {
     setIsLoadingTable(true);
@@ -115,27 +109,6 @@ export default function TableDetailPage() {
     if (table) setUpdateTableInput(table);
   };
 
-  const handleTableOccupationChanges = (data: { startedAt?: Date, finishedAt?: Date|null }) => {
-    setNewTableOccupation({
-      ...newTableOccupation,
-      ...data,
-    });
-  }
-
-  const handleCloseTableOccupationModal = () => {
-    setIsModalOpen(false);
-  }
-
-  const handleCreateTableOccupation = async () => {
-    setIsLoadingCreateTableOccupation(true);
-    setIsLoadingCreateTableOccupation(false);
-    handleCloseTableOccupationModal();
-    handleTableOccupationChanges({
-      startedAt: new Date(),
-      finishedAt: null,
-    })
-  }
-
   return (
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
@@ -149,7 +122,7 @@ export default function TableDetailPage() {
           <h1 className="text-3xl font-semibold text-gray-900">Table {table?.number}</h1>
         </div>
 
-        <div className="flex flex-col h-auto">
+        <div className="flex flex-col h-max">
           <TableDetails 
             table={table} 
             isUpdating={isUpdatingTable} 
@@ -159,49 +132,21 @@ export default function TableDetailPage() {
             isLoading={isLoadingTable} 
             onCancelUpdate={handleCancelUpdate}
           />
-          <div className="bg-white shadow-md rounded-lg p-6 flex flex-col flex-grow overflow-hidden">
-            <div className='flex justify-between items-center mb-4'>
-              <h2 className="text-2xl font-semibold text-gray-700">Table Occupations</h2>
-              <Button  
-              onClick={() => setIsModalOpen(true)}
-              type='primary'
-              buttonTitle={<FaPlus/>}
-              />
-            </div>
-            <div className="overflow-x-auto flex-grow rounded-lg">
-              {isLoadingOccupations ? (
-                <LoadingSpinner />
-              ) : tableOccupations.length ? (
-                <>
-                  <TableOccupationsTable
-                    data={tableOccupations}
-                    sortColumn={sortColumn}
-                    sortDirection={sortDirection}
-                    handleSort={handleSort}
-                  />
-                  <TablePagination
-                    page={page}
-                    limit={limit}
-                    count={count}
-                    totalPages={totalPages}
-                    setPage={setPage}
-                    setLimit={setLimit}
-                  />
-                </>
-              ) : (
-                <p className="text-gray-700">No table occupations found</p>
-              )}
-            </div>
-          </div>
-          {isModalOpen && (
-            <CreateTableOccupationModal
-            onClose={handleCloseTableOccupationModal}
-            tableOccupation={newTableOccupation}
-            onChanges={handleTableOccupationChanges}
-            isLoadingCreate={isLoadingCreateTableOccupation}
-            onSubmit={handleCreateTableOccupation}
-            />
-          )}
+          <TableOccupationsDetails
+            tableId={tableId as string}
+            fetchTableOccupations={fetchTableOccupations}
+            isLoadingOccupations={isLoadingOccupations}
+            tableOccupations={tableOccupations}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+            handleSort={handleSort}
+            page={page}
+            limit={limit}
+            count={count}
+            totalPages={totalPages}
+            setPage={setPage}
+            setLimit={setLimit}
+          />
         </div>
       </div>
     </div>

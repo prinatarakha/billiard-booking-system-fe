@@ -5,6 +5,7 @@ type Column<T> = {
   key: keyof T;
   header: string;
   render?: (value: T[keyof T], item: T) => React.ReactNode;
+  className?: string;
 };
 
 type Props<T> = {
@@ -15,7 +16,7 @@ type Props<T> = {
   handleSort: (column: keyof T) => void;
 };
 
-function Table<T>({ data, columns, sortColumn, sortDirection, handleSort }: Props<T>) {
+function GenericTable<T>({ data, columns, sortColumn, sortDirection, handleSort }: Props<T>) {
   const renderSortIcon = (column: keyof T) => {
     if (sortColumn !== column) return <FaSort />;
     return sortDirection === 'asc' ? <FaSortUp /> : <FaSortDown />;
@@ -29,10 +30,10 @@ function Table<T>({ data, columns, sortColumn, sortDirection, handleSort }: Prop
             {columns.map((column, index) => (
               <th
                 key={index}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer ${column.className || ''}`}
                 onClick={() => handleSort(column.key)}
               >
-                <div className="flex items-center">
+                <div className={`flex items-center ${column.className || ''}`}>
                   <span>{column.header}</span>
                   <span className="ml-2">
                     {renderSortIcon(column.key)}
@@ -52,7 +53,7 @@ function Table<T>({ data, columns, sortColumn, sortDirection, handleSort }: Prop
               `}
             >
               {columns.map((column, cellIndex) => (
-                <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td key={cellIndex} className={`px-6 py-4 whitespace-nowrap text-sm text-gray-500 ${column.className || ''}`}>
                   {column.render ? column.render(item[column.key], item) : String(item[column.key])}
                 </td>
               ))}
@@ -64,4 +65,4 @@ function Table<T>({ data, columns, sortColumn, sortDirection, handleSort }: Prop
   );
 }
 
-export default Table;
+export default GenericTable;

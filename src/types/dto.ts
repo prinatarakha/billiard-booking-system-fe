@@ -47,3 +47,15 @@ export interface GetTableOccupationsResponseSnakeCase extends PaginationResponse
 export interface GetTableOccupationsResponse extends PaginationResponse {
   tableOccupations: TableOccupation[];
 }
+
+export interface CreateTableOccupationPayload {
+  tableId: string;
+  startedAt?: Date | null;
+  finishedAt?: Date | null;
+}
+
+export interface CreateTableOccupationPayloadSnakeCase {
+  table_id: string;
+  started_at?: string; // datetime in isostring
+  finished_at?: string; // datetime in isostring
+}
