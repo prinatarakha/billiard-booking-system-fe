@@ -5,7 +5,7 @@ import Select from 'react-select';
 import Sidebar from '@/components/Sidebar';
 import TableOccupationsTable from './_components/TableOccupationsTable';
 import { Table, TableOccupation } from '@/types';
-import { createTableOccupation, deleteTableOccupation, getTableOccupations } from '@/api/tableOccupations';
+import { createTableOccupation, deleteTableOccupation, getTableOccupations, updateTableOccupation } from '@/api/tableOccupations';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import TablePagination from '@/components/TablePagination';
 import { DEFAULT_LIMIT_OPTIONS } from '../constants';
@@ -15,6 +15,7 @@ import { FaPlus } from 'react-icons/fa';
 import CreateTableOccupationModal from './_components/CreateTableOccupationModal';
 import { CreateTableOccupationPayload } from '@/types/dto';
 import dayjs from 'dayjs';
+import UpdateTableOccupationModal from './_components/UpdateTableOccupationModal';
 
 const TableOccupations: React.FC = () => {
   const [tableOccupations, setTableOccupations] = useState<TableOccupation[]>([]);
@@ -41,6 +42,7 @@ const TableOccupations: React.FC = () => {
 
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedTableOccupationToUpdate, setSelectedTableOccupationToUpdate] = useState<TableOccupation | null>(null);
+  const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
 
   const fetchTableOccupations = async () => {
     setIsLoading(true); // Set loading to true before fetching
@@ -181,6 +183,43 @@ const TableOccupations: React.FC = () => {
     setIsUpdateModalOpen(true);
   }
 
+  const handleUpdateTableOccupation = async ({tableId, startedAt, finishedAt}: {tableId?: string, startedAt?: Date, finishedAt?: Date | null}) => {
+    if (!selectedTableOccupationToUpdate ||
+      (startedAt === undefined && finishedAt === undefined && !tableId)
+    ) return;
+
+    if ((
+        !startedAt || dayjs(startedAt).isSame(dayjs(selectedTableOccupationToUpdate.startedAt))
+      ) && (
+        finishedAt === undefined || 
+        (finishedAt === null && selectedTableOccupationToUpdate.finishedAt === null) ||
+        dayjs(finishedAt).isSame(dayjs(selectedTableOccupationToUpdate.finishedAt))
+      ) && (
+        !tableId || 
+        tableId === selectedTableOccupationToUpdate.tableId
+      )
+    ) {
+      alert("No changes made!");
+      return;
+    }
+
+    setIsLoadingUpdate(true);
+    const result = await updateTableOccupation(selectedTableOccupationToUpdate.id, {tableId, startedAt, finishedAt});
+    if (!result.tableOccupation || result.error) {
+      alert(result.error || "Failed to update table occupation");
+      setIsLoadingUpdate(false);
+      return;
+    }
+    setIsLoadingUpdate(false);
+    setIsUpdateModalOpen(false);
+    await fetchTableOccupations();
+  }
+  
+  const handleCloseUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+    setSelectedTableOccupationToUpdate(null);
+  }
+
   return (
     <div className="flex">
       <Sidebar />
@@ -239,6 +278,16 @@ const TableOccupations: React.FC = () => {
               onChanges={handleNewTableOccupationChanges}
               isLoadingCreate={isLoadingCreate}
               onSubmit={handleCreateTableOccupationSubmit}
+            />
+          )}
+
+          {isUpdateModalOpen && (
+            <UpdateTableOccupationModal
+              onClose={handleCloseUpdateModal}
+              tableOccupation={selectedTableOccupationToUpdate}
+              isLoadingUpdate={isLoadingUpdate}
+              onSubmit={handleUpdateTableOccupation}
+              tableOptions={tableOptions}
             />
           )}
         </div>

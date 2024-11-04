@@ -45,7 +45,6 @@ const UpdateTableOccupationModal: React.FC<UpdateTableOccupationModalProps> = ({
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.currentTarget === e.target) {
       onClose();
-      // resetInputs(); // TBC if needed because onClose will automatically remove tableOccupation
     }
   };
 
