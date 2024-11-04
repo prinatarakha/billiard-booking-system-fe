@@ -5,7 +5,7 @@ import Select from 'react-select';
 import Sidebar from '@/components/Sidebar';
 import TableOccupationsTable from './_components/TableOccupationsTable';
 import { Table, TableOccupation } from '@/types';
-import { createTableOccupation, getTableOccupations } from '@/api/tableOccupations';
+import { createTableOccupation, deleteTableOccupation, getTableOccupations } from '@/api/tableOccupations';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import TablePagination from '@/components/TablePagination';
 import { DEFAULT_LIMIT_OPTIONS } from '../constants';
@@ -38,6 +38,9 @@ const TableOccupations: React.FC = () => {
   };
   const [newTableOccupation, setNewTableOccupation] = useState<CreateTableOccupationPayload>(defaultTableOccupation);
   const [isLoadingCreate, setIsLoadingCreate] = useState(false);
+
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [selectedTableOccupationToUpdate, setSelectedTableOccupationToUpdate] = useState<TableOccupation | null>(null);
 
   const fetchTableOccupations = async () => {
     setIsLoading(true); // Set loading to true before fetching
@@ -159,6 +162,25 @@ const TableOccupations: React.FC = () => {
     fetchTableOccupations();
   };
 
+  const handleDeleteTableOccupation = async (tableOccupationId: string) => {
+    const result = await deleteTableOccupation(tableOccupationId);
+    if (!result.tableOccupation || result.error) {
+      alert(result.error || "Failed to delete table occupation");
+      return;
+    }
+
+    if (tableOccupations.length === 1 && page > 1) {
+      setPage(page - 1);
+    } else {
+      await fetchTableOccupations();
+    }
+  }
+
+  const handleEditIconClick = (tableOccupation: TableOccupation) => {
+    setSelectedTableOccupationToUpdate(tableOccupation);
+    setIsUpdateModalOpen(true);
+  }
+
   return (
     <div className="flex">
       <Sidebar />
@@ -193,6 +215,8 @@ const TableOccupations: React.FC = () => {
                 handleSort={handleSort}
                 page={page}
                 limit={limit}
+                onEdit={handleEditIconClick}
+                onDelete={handleDeleteTableOccupation}
               />
             )}
           </div>

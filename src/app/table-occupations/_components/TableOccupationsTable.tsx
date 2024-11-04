@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import dayjs from 'dayjs';
 import { Table, TableOccupation } from '@/types';
 import GenericTable from '@/components/GenericTable';
 import Link from 'next/link';
+import EditIcon from '@/components/EditIcon';
+import DeleteIcon from '@/components/DeleteIcon';
 
 type Props = {
   data: TableOccupation[];
@@ -12,6 +14,8 @@ type Props = {
   handleSort: (column: keyof TableOccupation) => void;
   page: number;
   limit: number;
+  onEdit: (tableOccupation: TableOccupation) => void;
+  onDelete: (tableOccupationId: string) => void;
 };
 
 const TableOccupationsTable: React.FC<Props> = ({
@@ -22,9 +26,18 @@ const TableOccupationsTable: React.FC<Props> = ({
   handleSort,
   page,
   limit,
+  onEdit,
+  onDelete,
 }) => {
   const formatDate = (date: string | Date) => {
     return dayjs(date).format('DD MMM YYYY HH:mm');
+  };
+
+  const handleDelete = (value: {occupation: TableOccupation, rowNumber: number}) => {
+    // Implement the delete functionality here
+    if (window.confirm(`Are you sure you want to delete this table occupation #${value.rowNumber}?`)) {
+      onDelete(value.occupation.id);
+    }
   };
 
   const columns = [
@@ -34,17 +47,28 @@ const TableOccupationsTable: React.FC<Props> = ({
     { key: 'finishedAt' as keyof TableOccupation, header: 'Finished At', render: (value: Date | null) => value ? formatDate(value) : '-' },
     { key: 'createdAt' as keyof TableOccupation, header: 'Created At', render: (value: Date) => formatDate(value) },
     { key: 'updatedAt' as keyof TableOccupation, header: 'Updated At', render: (value: Date) => formatDate(value) },
+    { key: 'actions' as keyof TableOccupation, header: 'Actions', 
+      render: (value: {occupation: TableOccupation, rowNumber: number}) => <div className="flex items-center justify-center space-x-4">
+        <EditIcon onClick={() => onEdit(value.occupation)} />
+        <DeleteIcon onClick={() => handleDelete(value)} />
+      </div>,
+      className: 'justify-center w-12'
+    },
   ];
 
-  const tableOptionsMap = new Map(tableOptions.map(option => [option.id, option]));
+  const tableOptionsMap = useMemo(() => new Map(tableOptions.map(option => [option.id, option])), [tableOptions]);
 
   return (
     <GenericTable<TableOccupation>
-      data={data.map((item, index) => ({
-        ...item,
-        rowNumber: (page - 1) * limit + index + 1, // Calculate row number
-        table: tableOptionsMap.get(item.tableId),
-      }))}
+      data={data.map((item, index) => {
+        const rowNumber = (page - 1) * limit + index + 1;
+        return {
+          ...item,
+          rowNumber,
+          table: tableOptionsMap.get(item.tableId),
+          actions: { occupation: item, rowNumber },
+        };
+      })}
       columns={columns}
       sortColumn={sortColumn}
       sortDirection={sortDirection}

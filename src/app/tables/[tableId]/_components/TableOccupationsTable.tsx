@@ -30,6 +30,13 @@ const TableOccupationsTable: React.FC<Props> = ({
     return dayjs(date).format('DD MMM YYYY HH:mm');
   };
 
+  const handleDelete = (value: {occupation: TableOccupation, rowNumber: number}) => {
+    // Implement the delete functionality here
+    if (window.confirm(`Are you sure you want to delete this table occupation #${value.rowNumber}?`)) {
+      onDelete(value.occupation.id);
+    }
+  };
+
   const columns = [
     { key: 'rowNumber' as keyof TableOccupation, header: 'No.', render: (value: number) => value, className: 'w-12' },
     { key: 'startedAt' as keyof TableOccupation, header: 'Started At', render: (value: Date) => formatDate(value) },
@@ -44,13 +51,6 @@ const TableOccupationsTable: React.FC<Props> = ({
       className: 'justify-center w-12'
     },
   ];
-
-  const handleDelete = (value: {occupation: TableOccupation, rowNumber: number}) => {
-    // Implement the delete functionality here
-    if (window.confirm(`Are you sure you want to delete this table occupation #${value.rowNumber}?`)) {
-      onDelete(value.occupation.id);
-    }
-  };
 
   return (
     <GenericTable<TableOccupation>
