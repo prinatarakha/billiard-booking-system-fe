@@ -194,6 +194,7 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
         onSubmit={handleCreateTableOccupation}
       />
     )}
+    
     {isUpdateModalOpen && (
       <UpdateTableOccupationModal
         onClose={handleCloseUpdateModal}

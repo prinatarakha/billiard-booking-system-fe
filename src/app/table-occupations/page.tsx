@@ -5,11 +5,16 @@ import Select from 'react-select';
 import Sidebar from '@/components/Sidebar';
 import TableOccupationsTable from './_components/TableOccupationsTable';
 import { Table, TableOccupation } from '@/types';
-import { getTableOccupations } from '@/api/tableOccupations';
+import { createTableOccupation, getTableOccupations } from '@/api/tableOccupations';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import TablePagination from '@/components/TablePagination';
 import { DEFAULT_LIMIT_OPTIONS } from '../constants';
 import { getTables } from '@/api/tables';
+import Button from '@/components/Button';
+import { FaPlus } from 'react-icons/fa';
+import CreateTableOccupationModal from './_components/CreateTableOccupationModal';
+import { CreateTableOccupationPayload } from '@/types/dto';
+import dayjs from 'dayjs';
 
 const TableOccupations: React.FC = () => {
   const [tableOccupations, setTableOccupations] = useState<TableOccupation[]>([]);
@@ -21,6 +26,18 @@ const TableOccupations: React.FC = () => {
   const [limit, setLimit] = useState(DEFAULT_LIMIT_OPTIONS[1].value);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  const fetchedRef = useRef(false);
+  const [tableOptions, setTableOptions] = useState<{id: string, number: string}[]>([]);
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const defaultTableOccupation: CreateTableOccupationPayload = {
+    tableId: '',
+    startedAt: null,
+    finishedAt: null,
+  };
+  const [newTableOccupation, setNewTableOccupation] = useState<CreateTableOccupationPayload>(defaultTableOccupation);
+  const [isLoadingCreate, setIsLoadingCreate] = useState(false);
 
   const fetchTableOccupations = async () => {
     setIsLoading(true); // Set loading to true before fetching
@@ -49,10 +66,6 @@ const TableOccupations: React.FC = () => {
     else fetchTableOccupations();
   }, [selectedTableId]);
 
-  // Generate unique table IDs for the dropdown
-  // TODO: Hit an API to get all tables (just the IDs and numbers) without the need of pagination
-  const fetchedRef = useRef(false);
-  const [tableOptions, setTableOptions] = useState<{id: string, number: string}[]>([]);
   const fetchTableOptions = async () => {
     if (fetchedRef.current) return;
     fetchedRef.current = true;
@@ -110,6 +123,42 @@ const TableOccupations: React.FC = () => {
     }),
   };
 
+  const handleNewTableOccupationChanges = (data: {tableId?: string, startedAt?: Date | null, finishedAt?: Date | null}) => {
+    setNewTableOccupation(prev => ({ ...prev, ...data }));
+  };
+
+  const handleCreateTableOccupationSubmit = async () => {
+    setIsLoadingCreate(true);
+
+    if (!newTableOccupation.tableId) {
+      alert('Table is required');
+      setIsLoadingCreate(false);
+      return;
+    }
+
+    if (dayjs(newTableOccupation.startedAt).isBefore(dayjs().add(1, "minute"))) {
+      if (window.confirm("Started at must be after current time, do you want to set it to current time?")) {
+        handleNewTableOccupationChanges({startedAt: dayjs().add(10, "seconds").toDate()});
+      } else {
+        alert("Please change the 'Started At' value!");
+        setIsLoadingCreate(false);
+        return;
+      }
+    }
+
+    const result = await createTableOccupation(newTableOccupation);
+    if (!result.tableOccupation || result.error) {
+      alert(result.error || "Failed to create table occupation");
+      setIsLoadingCreate(false);
+      return;
+    }
+
+    setIsLoadingCreate(false);
+    setIsCreateModalOpen(false);
+    setNewTableOccupation(defaultTableOccupation);
+    fetchTableOccupations();
+  };
+
   return (
     <div className="flex">
       <Sidebar />
@@ -124,6 +173,11 @@ const TableOccupations: React.FC = () => {
               placeholder="Filter by Table"
               className="w-54"
               styles={customSelectStyles}
+            />
+            <Button  
+              onClick={() => setIsCreateModalOpen(true)}
+              type='primary'
+              buttonTitle={<FaPlus/>}
             />
           </div>
 
@@ -152,6 +206,17 @@ const TableOccupations: React.FC = () => {
             setLimit={setLimit}
             customSelectStyles={customSelectStyles}
           />
+
+          {isCreateModalOpen && (
+            <CreateTableOccupationModal
+              onClose={() => setIsCreateModalOpen(false)}
+              tableOptions={tableOptions}
+              tableOccupation={newTableOccupation}
+              onChanges={handleNewTableOccupationChanges}
+              isLoadingCreate={isLoadingCreate}
+              onSubmit={handleCreateTableOccupationSubmit}
+            />
+          )}
         </div>
       </div>
     </div>
