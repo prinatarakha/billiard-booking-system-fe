@@ -3,6 +3,7 @@ import { Table } from '@/types';
 import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
 import { useRouter } from 'next/navigation';
 import NumberInput from '@/components/NumberInput';
+import dayjs from 'dayjs';
 
 interface TablesGridComponents {
   isEditing?: boolean;
@@ -38,7 +39,7 @@ const TablesGrid: React.FC<TablesGridComponents> = ({ isEditing = false, tables,
               )}
             </div>
             <p className="text-sm text-gray-600"><span className="font-semibold">Brand:</span> {TABLE_BRANDS_TO_LABEL[table.brand]}</p>
-            <p className="text-sm text-gray-600"><span className="font-semibold">Last Updated:</span> {table.updatedAt.toLocaleString()}</p>
+            <p className="text-sm text-gray-600"><span className="font-semibold">Last Updated:</span> {dayjs(table.updatedAt).format('DD MMM YYYY HH:mm')}</p>
           </div>
         </div>
       ))}

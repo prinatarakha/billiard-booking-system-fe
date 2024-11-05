@@ -9,6 +9,7 @@ import EditIcon from '../../../../components/EditIcon';
 import { deleteTable } from '@/api/tables';
 import { useRouter } from 'next/navigation';
 import NumberInput from '../../../../components/NumberInput';
+import dayjs from 'dayjs';
 
 interface TableDetailsProps {
   table: Table | null;
@@ -85,7 +86,7 @@ const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdatin
           </div>
           <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
             <p className="text-sm font-medium text-gray-500 mb-1">Last Updated</p>
-            <p className="text-lg font-semibold text-gray-700">{table.updatedAt.toLocaleString()}</p>
+            <p className="text-lg font-semibold text-gray-700">{dayjs(table.updatedAt).format('DD MMM YYYY hh:mm:ss A')}</p>
           </div>
           {isEditing && (
             <div className="col-span-2 flex justify-end mt-4">
