@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { DEFAULT_LIMIT_OPTIONS } from '@/app/constants';
 import TableOccupationsTable from '@/components/TableOccupationsTable';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { createTableOccupation, getTableOccupations } from '@/api/tableOccupations';
+import { createTableOccupation, deleteTableOccupation, getTableOccupations } from '@/api/tableOccupations';
 import TablePagination from '@/components/TablePagination';
 import TableDetails from './_components/TableDetails';
 import Button from '@/components/Button';
@@ -17,12 +17,16 @@ import { FaPlus } from 'react-icons/fa';
 import CreateTableOccupationModal from './_components/CreateTableOccupationModal';
 import dayjs from 'dayjs';
 import TableOccupationsDetails from './_components/TableOccupationsDetails';
+import ActiveOccupationDetails from './_components/ActiveOccupationDetails';
 
 export default function TableDetailPage() {
   const { tableId } = useParams();
   const [table, setTable] = useState<Table | null>(null);
   const [updateTableInput, setUpdateTableInput] = useState<{ number: number, brand: TableBrand } | null>(null);
   const [isUpdatingTable, setIsUpdatingTable] = useState(false);
+
+  const [activeOccupation, setActiveOccupation] = useState<TableOccupation | null>(null);
+  const [isLoadingActiveOccupation, setIsLoadingActiveOccupation] = useState(true);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT_OPTIONS[1].value);
@@ -61,15 +65,17 @@ export default function TableDetailPage() {
   useEffect(() => {
     fetchTable();
   }, [tableId]);
+  
+  useEffect(() => {
+    if (!table) return;
+    setUpdateTableInput(table);
+    
+    if (page === 1 && sortColumn === 'startedAt' && sortDirection === 'desc') fetchActiveOccupation(table);
+  }, [table, page, sortColumn, sortDirection]);
 
   useEffect(() => {
-    if (table) {
-      setUpdateTableInput(table);
-    }
-  }, [table]);
-
-  useEffect(() => {
-    if (tableId) fetchTableOccupations();
+    if (!tableId) return;
+    fetchTableOccupations();
   }, [page, limit, tableId, sortColumn, sortDirection]);
 
   const handleSort = (column: keyof TableOccupation) => {
@@ -109,6 +115,50 @@ export default function TableDetailPage() {
     if (table) setUpdateTableInput(table);
   };
 
+  const fetchActiveOccupation = async (fetchedTable?: Table) => {
+    fetchedTable = fetchedTable ?? (table || undefined);
+    if (!tableId || !fetchedTable) return;
+
+    setIsLoadingActiveOccupation(true);
+    const result = await getTableOccupations({
+      pagination: {
+        page: 1,
+        limit: 1,
+      },
+      filter: {
+        tableId: tableId as string,
+      },
+      sort: {
+        sortColumn: 'startedAt',
+        sortDirection: 'desc',
+      },
+    });
+    if (result && result.tableOccupations.length && 
+      dayjs(result.tableOccupations[0].startedAt).isBefore(dayjs(new Date())) &&
+      (!result.tableOccupations[0].finishedAt || ( // open table or finished in the future
+        result.tableOccupations[0].finishedAt &&
+        dayjs(result.tableOccupations[0].finishedAt).isAfter(dayjs(new Date()))
+      ))
+    ) {
+      setActiveOccupation(result.tableOccupations[0]);
+      fetchedTable.status = 'occupied';
+    } else {
+      setActiveOccupation(null);
+      // TODO: pass active occupation to the TableDetails component for adding new tag in case there is an upcoming occupation that has not started yet
+      fetchedTable.status = 'available';
+    }
+    setIsLoadingActiveOccupation(false);
+  }
+
+  const handleDeleteActiveOccupation = async () => {
+    if (!activeOccupation) return;
+    if (!window.confirm('Are you sure you want to delete the active occupation?')) return;
+
+    await deleteTableOccupation(activeOccupation.id);
+    fetchActiveOccupation();
+    fetchTableOccupations();
+  }
+
   return (
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
@@ -132,9 +182,16 @@ export default function TableDetailPage() {
             isLoading={isLoadingTable} 
             onCancelUpdate={handleCancelUpdate}
           />
+          <ActiveOccupationDetails
+            tableId={tableId as string}
+            tableOccupation={activeOccupation}
+            isLoading={isLoadingActiveOccupation}
+            onDelete={handleDeleteActiveOccupation}
+          />
           <TableOccupationsDetails
             tableId={tableId as string}
             fetchTableOccupations={fetchTableOccupations}
+            fetchActiveOccupation={fetchActiveOccupation}
             isLoadingOccupations={isLoadingOccupations}
             tableOccupations={tableOccupations}
             sortColumn={sortColumn}

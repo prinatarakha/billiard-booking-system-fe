@@ -4,6 +4,7 @@ export interface Table {
   id: string;
   number: number;
   brand: TableBrand;
+  status?: 'occupied' | 'available';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -12,6 +13,7 @@ export interface TableSnakeCase {
   id: string;
   number: number;
   brand: TableBrand;
+  status?: 'occupied' | 'available';
   created_at: string;
   updated_at: string;
 }

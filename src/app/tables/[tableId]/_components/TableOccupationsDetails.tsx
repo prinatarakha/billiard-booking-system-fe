@@ -16,6 +16,7 @@ import UpdateTableOccupationModal from "./UpdateTableOccupationModal";
 interface TableOccupationsDetailsProps {
   tableId: string;
   fetchTableOccupations: () => Promise<void>;
+  fetchActiveOccupation: () => Promise<void>;
   isLoadingOccupations: boolean;
   tableOccupations: TableOccupation[];
   sortColumn: keyof TableOccupation | null;
@@ -32,6 +33,7 @@ interface TableOccupationsDetailsProps {
 const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
   tableId,
   fetchTableOccupations,
+  fetchActiveOccupation,
   isLoadingOccupations,
   tableOccupations,
   sortColumn,
@@ -90,6 +92,7 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
     });
 
     await fetchTableOccupations();
+    await fetchActiveOccupation();
   }
 
   const handleDeleteTableOccupation = async (tableOccupationId: string) => {
@@ -97,6 +100,10 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
     if (!result.tableOccupation || result.error) {
       alert(result.error || "Failed to delete table occupation");
       return;
+    }
+
+    if (page === 1 && sortColumn === 'startedAt' && sortDirection === 'desc') {
+      await fetchActiveOccupation();
     }
 
     if (tableOccupations.length === 1 && page > 1) {
@@ -138,6 +145,16 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
     setIsLoadingUpdateTableOccupation(false);
     setIsUpdateModalOpen(false);
     await fetchTableOccupations();
+
+    if (page === 1 && 
+      sortColumn === 'startedAt' && 
+      sortDirection === 'desc' && 
+      tableOccupations.length && 
+      tableOccupations[0].id === selectedTableOccupationToUpdate.id
+    ) {
+      await fetchActiveOccupation();
+    }
+    setSelectedTableOccupationToUpdate(null);
   }
   
   const handleCloseUpdateModal = () => {

@@ -37,10 +37,21 @@ const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdatin
     }
   }
 
+  const status = table?.status ?? 'available';
+
   return (
     <div className="bg-white shadow-md rounded-lg p-6 mb-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-gray-700">Table Details</h2>
+        <div className='flex space-x-4 items-center'>
+          <h2 className="text-2xl font-semibold text-gray-700">Table Details</h2>
+          <span className={`text-sm font-semibold px-2 py-1 rounded-full ${
+            status === 'occupied' 
+              ? 'bg-red-100 text-red-800'
+              : 'bg-green-100 text-green-800'
+            }`}>
+              {status}
+          </span>
+        </div>
         <div className='flex space-x-4 items-center'>
           {!isEditing && table && (
             <EditIcon onClick={() => setIsEditing(true)}/>
