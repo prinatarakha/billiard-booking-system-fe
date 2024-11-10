@@ -15,6 +15,7 @@ import UpdateTableOccupationModal from "./UpdateTableOccupationModal";
 
 interface TableOccupationsDetailsProps {
   tableId: string;
+  isTableOccupied: boolean;
   fetchTableOccupations: () => Promise<void>;
   fetchActiveOccupation: () => Promise<void>;
   isLoadingOccupations: boolean;
@@ -32,6 +33,7 @@ interface TableOccupationsDetailsProps {
 
 const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
   tableId,
+  isTableOccupied,
   fetchTableOccupations,
   fetchActiveOccupation,
   isLoadingOccupations,
@@ -170,6 +172,7 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
           onClick={() => setIsCreateModalOpen(true)}
           type='primary'
           buttonTitle={<FaPlus/>}
+          disabled={isTableOccupied}
         />
       </div>
       <div className="overflow-x-auto flex-grow rounded-lg">

@@ -7,14 +7,8 @@ import { Table, TableBrand, TableOccupation } from '@/types';
 import Sidebar from '@/components/Sidebar';
 import Link from 'next/link';
 import { DEFAULT_LIMIT_OPTIONS } from '@/app/constants';
-import TableOccupationsTable from '@/components/TableOccupationsTable';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { createTableOccupation, deleteTableOccupation, getTableOccupations } from '@/api/tableOccupations';
-import TablePagination from '@/components/TablePagination';
+import { deleteTableOccupation, getTableOccupations } from '@/api/tableOccupations';
 import TableDetails from './_components/TableDetails';
-import Button from '@/components/Button';
-import { FaPlus } from 'react-icons/fa';
-import CreateTableOccupationModal from './_components/CreateTableOccupationModal';
 import dayjs from 'dayjs';
 import TableOccupationsDetails from './_components/TableOccupationsDetails';
 import ActiveOccupationDetails from './_components/ActiveOccupationDetails';
@@ -190,6 +184,7 @@ export default function TableDetailPage() {
           />
           <TableOccupationsDetails
             tableId={tableId as string}
+            isTableOccupied={activeOccupation !== null}
             fetchTableOccupations={fetchTableOccupations}
             fetchActiveOccupation={fetchActiveOccupation}
             isLoadingOccupations={isLoadingOccupations}
