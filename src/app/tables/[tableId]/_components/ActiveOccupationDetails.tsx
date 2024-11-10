@@ -56,24 +56,31 @@ const ActiveOccupationDetails: React.FC<ActiveOccupationDetailsProps> = ({ table
             <p className="text-sm font-medium text-gray-500 mb-1">ID</p>
             <p className="text-sm font-bold text-gray-700 font-mono rounded"><span className="bg-gray-200 px-2 py-1 rounded-sm">{tableOccupation.id}</span></p>
           </div>
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-            <p className="text-sm font-medium text-gray-500 mb-1">Started At</p>
-            {isEditing ? (
-              <div className="flex-col space-y-1">
-                {/* <NumberInput 
-                  value={updateTableOccupationInput?.startedAt || tableOccupation.startedAt}
-                  onChange={(number: number) => onTableInputChange({ number })}
-                  min={1}
-                /> */}
-                <p className="text-xs text-gray-400">Table number must be unique.</p>
-              </div>
-            ) : (
-              <p className="text-lg font-semibold text-gray-700">{dayjs(tableOccupation.startedAt).format('DD MMM YYYY hh:mm:ss A')}</p>
-            )}
+          <div className='flex space-x-4 w-full'>
+            <div className="bg-gray-50 p-4 rounded-lg shadow-sm w-full">
+              <p className="text-sm font-medium text-gray-500 mb-1">Started At</p>
+              {isEditing ? (
+                <div className="flex-col space-y-1">
+                  {/* <NumberInput 
+                    value={updateTableOccupationInput?.startedAt || tableOccupation.startedAt}
+                    onChange={(number: number) => onTableInputChange({ number })}
+                    min={1}
+                  /> */}
+                  <p className="text-xs text-gray-400">Table number must be unique.</p>
+                </div>
+              ) : (
+                <p className="text-lg font-semibold text-gray-700">{dayjs(tableOccupation.startedAt).format('DD MMM YYYY hh:mm:ss A')}</p>
+              )}
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-lg shadow-sm w-full">
+              <p className="text-sm font-medium text-gray-500 mb-1">Finished At</p>
+              <p className="text-lg font-semibold text-gray-700">{tableOccupation.finishedAt ? dayjs(tableOccupation.finishedAt).format('DD MMM YYYY hh:mm:ss A') : 'Not set'}</p>
+            </div>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
             <p className="text-sm font-medium text-gray-500 mb-1">Status</p>
-            <p className="text-lg font-semibold text-gray-700">{tableOccupation.finishedAt ? `Occupied until ${dayjs(tableOccupation.finishedAt).format('DD MMM YYYY hh:mm:ss A')}` : 'Open Table'}</p>
+            <p className="text-lg font-semibold text-gray-700">{tableOccupation.finishedAt ? `Occupied for ${formatTimeDifference(getTimeDifferenceInSeconds(tableOccupation.finishedAt, tableOccupation.startedAt))}` : 'Open Table'}</p>
           </div>
           <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
             <p className="text-sm font-medium text-gray-500 mb-1">
