@@ -47,7 +47,7 @@ export async function createTableOccupation(params: CreateTableOccupationPayload
   try {
     const payload: CreateTableOccupationPayloadSnakeCase = {
       table_id: params.tableId,
-      started_at: params.startedAt ? (dayjs(params.startedAt).isBefore(dayjs()) ? dayjs().add(10, "second").toISOString() : params.startedAt.toISOString()) : undefined,
+      started_at: params.startedAt && dayjs(params.startedAt).isAfter(dayjs()) ? params.startedAt.toISOString() : undefined,
       finished_at: params.finishedAt ? params.finishedAt.toISOString() : undefined,
     }
 

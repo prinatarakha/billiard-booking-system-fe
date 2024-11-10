@@ -7,7 +7,7 @@ import { Table, TableBrand, TableOccupation } from '@/types';
 import Sidebar from '@/components/Sidebar';
 import Link from 'next/link';
 import { DEFAULT_LIMIT_OPTIONS } from '@/app/constants';
-import { deleteTableOccupation, getTableOccupations } from '@/api/tableOccupations';
+import { deleteTableOccupation, getTableOccupations, updateTableOccupation } from '@/api/tableOccupations';
 import TableDetails from './_components/TableDetails';
 import dayjs from 'dayjs';
 import TableOccupationsDetails from './_components/TableOccupationsDetails';
@@ -153,6 +153,15 @@ export default function TableDetailPage() {
     fetchTableOccupations();
   }
 
+  const handleCloseActiveOccupation = async () => {
+    if (!activeOccupation) return;
+    if (!window.confirm('Are you sure you want to close the active occupation?')) return;
+    setActiveOccupation(null);
+    await updateTableOccupation(activeOccupation.id, { finishedAt: new Date() });
+    await fetchActiveOccupation();
+    await fetchTableOccupations();
+  }
+
   return (
     <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
@@ -181,6 +190,7 @@ export default function TableDetailPage() {
             tableOccupation={activeOccupation}
             isLoading={isLoadingActiveOccupation}
             onDelete={handleDeleteActiveOccupation}
+            onCloseOccupation={handleCloseActiveOccupation}
           />
           <TableOccupationsDetails
             tableId={tableId as string}

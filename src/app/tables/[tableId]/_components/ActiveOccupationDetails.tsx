@@ -11,9 +11,10 @@ interface ActiveOccupationDetailsProps {
   tableOccupation: TableOccupation | null;
   isLoading: boolean;
   onDelete: () => void;
+  onCloseOccupation: () => void;
 }
 
-const ActiveOccupationDetails: React.FC<ActiveOccupationDetailsProps> = ({ tableId, tableOccupation, isLoading, onDelete }) => {
+const ActiveOccupationDetails: React.FC<ActiveOccupationDetailsProps> = ({ tableId, tableOccupation, isLoading, onDelete, onCloseOccupation }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [updateTableOccupationInput, setUpdateTableOccupationInput] = useState<UpdateTableOccupationPayload | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -34,11 +35,10 @@ const ActiveOccupationDetails: React.FC<ActiveOccupationDetailsProps> = ({ table
         {tableOccupation && (
           <div className='flex space-x-4 items-center'>
             {/* TODO: Add edit functionality */}
-            {/* TODO: Add close occupation functionality */}
             {!tableOccupation.finishedAt && 
             dayjs(currentTime).isAfter(dayjs(tableOccupation.startedAt)) && ( 
               <Button
-                onClick={() => {}}
+                onClick={onCloseOccupation}
                 type='secondary'
                 buttonTitle='Close'
               />
