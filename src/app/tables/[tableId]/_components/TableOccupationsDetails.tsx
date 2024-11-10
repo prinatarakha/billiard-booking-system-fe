@@ -69,14 +69,12 @@ const TableOccupationsDetails: React.FC<TableOccupationsDetailsProps> = ({
   const handleCreateTableOccupation = async () => {
     setIsLoadingCreateTableOccupation(true);
 
-    if (dayjs(newTableOccupation.startedAt).isBefore(dayjs().add(1, "minute"))) {
-      if (window.confirm("Started at must be after current time, do you want to set it to current time?")) {
-        handleTableOccupationChanges({startedAt: dayjs().add(10, "seconds").toDate()});
-      } else {
-        alert("Please change the 'Started At' value!");
-        setIsLoadingCreateTableOccupation(false);
-        return;
-      }
+    if (dayjs(newTableOccupation.startedAt).isBefore(dayjs()) && 
+      !window.confirm("Started at must be after current time, do you want to set it to current time?")
+    ) {
+      alert("Please change the 'Started At' value!");
+      setIsLoadingCreateTableOccupation(false);
+      return;
     }
 
     const result = await createTableOccupation(newTableOccupation);

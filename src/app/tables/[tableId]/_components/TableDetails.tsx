@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Table, TableBrand } from '@/types';
+'use client';
+import React, { useEffect, useState } from 'react';
+import { Table, TableBrand, TableOccupation } from '@/types';
 import { TABLE_BRANDS_TO_LABEL } from '@/app/constants';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import Select from 'react-select';
@@ -10,9 +11,11 @@ import { deleteTable } from '@/api/tables';
 import { useRouter } from 'next/navigation';
 import NumberInput from '../../../../components/NumberInput';
 import dayjs from 'dayjs';
+import { formatTimeDifference, getTimeDifferenceInSeconds } from '@/utils/time';
 
 interface TableDetailsProps {
   table: Table | null;
+  activeOccupation: TableOccupation | null;
   isLoading: boolean;
   isUpdating: boolean;
   onUpdate: () => void;
@@ -21,9 +24,34 @@ interface TableDetailsProps {
   onCancelUpdate: () => void;
 }
 
-const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdating, onUpdate, updateTableInput, onTableInputChange, onCancelUpdate }) => {
+const TableDetails: React.FC<TableDetailsProps> = ({ table, activeOccupation, isLoading, isUpdating, onUpdate, updateTableInput, onTableInputChange, onCancelUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [availableTimeLeft, setAvailableTimeLeft] = useState<string | null>(null);
+
+  // Add timer effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeOccupation]);
+
+  useEffect(() => {
+    if (!activeOccupation) {
+      setAvailableTimeLeft(null);
+      return;
+    }
+
+    const timeDiff = dayjs(currentTime).isBefore(dayjs(activeOccupation.startedAt))
+      ? getTimeDifferenceInSeconds(activeOccupation.startedAt, currentTime)
+      : -1;
+
+    if (timeDiff > 0) setAvailableTimeLeft(formatTimeDifference(timeDiff));
+    else setAvailableTimeLeft(null);
+  }, [activeOccupation, currentTime]);
 
   const handleDelete = async () => {
     if (!table || !table.id) return;
@@ -51,6 +79,11 @@ const TableDetails: React.FC<TableDetailsProps> = ({ table, isLoading, isUpdatin
             }`}>
               {status}
           </span>
+          {availableTimeLeft && (
+            <span className="text-sm font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+              will be occupied in {availableTimeLeft}
+            </span>
+          )}
         </div>
         <div className='flex space-x-4 items-center'>
           {!isEditing && table && (

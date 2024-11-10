@@ -5,6 +5,7 @@ import Button from '../../../../components/Button';
 import DeleteIcon from '../../../../components/DeleteIcon';
 import dayjs from 'dayjs';
 import { UpdateTableOccupationPayload } from '@/types/dto';
+import { formatTimeDifference, getTimeDifferenceInSeconds } from '@/utils/time';
 
 interface ActiveOccupationDetailsProps {
   tableId: string;
@@ -86,22 +87,13 @@ const ActiveOccupationDetails: React.FC<ActiveOccupationDetailsProps> = ({ table
 
                 let diffInSeconds = 0;
                 if (tableOccupation.finishedAt) { // fixed time occupation -> find the time left until the finishedAt time
-                  diffInSeconds = dayjs(tableOccupation.finishedAt).diff(dayjs(currentTime), 'second');
+                  diffInSeconds = getTimeDifferenceInSeconds(tableOccupation.finishedAt, currentTime);
                   if (diffInSeconds <= 0) return 'Time is up';
                 } else { // open table -> find the occupation time starting from the startedAt time
-                  diffInSeconds = dayjs(currentTime).diff(dayjs(tableOccupation.startedAt), 'second');
+                  diffInSeconds = getTimeDifferenceInSeconds(currentTime, tableOccupation.startedAt);
                 }
 
-                const hours = Math.floor(diffInSeconds / 3600);
-                const minutes = Math.floor((diffInSeconds % 3600) / 60);
-                const seconds = diffInSeconds % 60;
-
-                const parts = [];
-                if (hours > 0) parts.push(`${hours}h`);
-                if (minutes > 0 || hours > 0) parts.push(`${minutes}m`);
-                parts.push(`${seconds}s`);
-
-                return parts.join(' ');
+                return formatTimeDifference(diffInSeconds);
               })()}
             </p>
           </div>

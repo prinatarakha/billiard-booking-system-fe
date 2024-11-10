@@ -128,17 +128,15 @@ export default function TableDetailPage() {
       },
     });
     if (result && result.tableOccupations.length && 
-      dayjs(result.tableOccupations[0].startedAt).isBefore(dayjs(new Date())) &&
       (!result.tableOccupations[0].finishedAt || ( // open table or finished in the future
         result.tableOccupations[0].finishedAt &&
-        dayjs(result.tableOccupations[0].finishedAt).isAfter(dayjs(new Date()))
+        dayjs(result.tableOccupations[0].finishedAt).isAfter(dayjs())
       ))
     ) {
       setActiveOccupation(result.tableOccupations[0]);
-      fetchedTable.status = 'occupied';
+      fetchedTable.status = dayjs(result.tableOccupations[0].startedAt).isBefore(dayjs()) ? 'occupied' : 'available';
     } else {
       setActiveOccupation(null);
-      // TODO: pass active occupation to the TableDetails component for adding new tag in case there is an upcoming occupation that has not started yet
       fetchedTable.status = 'available';
     }
     setIsLoadingActiveOccupation(false);
@@ -178,6 +176,7 @@ export default function TableDetailPage() {
         <div className="flex flex-col h-max">
           <TableDetails 
             table={table} 
+            activeOccupation={activeOccupation}
             isUpdating={isUpdatingTable} 
             onUpdate={handleUpdateTable} 
             updateTableInput={updateTableInput} 
